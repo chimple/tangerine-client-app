@@ -1,2 +1,2 @@
-# tangerine-client-app-
+# tangerine-client-app
 Tangerine Client App
