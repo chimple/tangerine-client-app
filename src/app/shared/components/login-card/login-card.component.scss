@@ -11,20 +11,13 @@
   background: #fff;
 }
 
-
 .login-card .logo {
   width: 140px;
   height: 140px;
   object-fit: contain;
-  display: block;
   margin: 0 0 1rem;
   border-radius: 50%;
-  background: transparent;
   padding: 6px;
-  user-select: none;          
-  -webkit-user-drag: none;    
-  touch-action: none;         
-  pointer-events: none;       
 }
 
 .login-card ion-card-content {
@@ -41,7 +34,7 @@
   width: 100%;
   display: flex;
   justify-content: center;
-  margin-top: 1rem;
+  margin-top: 1.3rem;
 }
 
 .login-card .actions ion-button {

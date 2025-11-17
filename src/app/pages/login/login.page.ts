@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { HeaderComponent } from '../../shared/components/header/header.component';
-import { LoginCardComponent } from '../../shared/components/login-card/login-card.component';
+import { HeaderComponent } from 'app/shared/components/header/header.component';
+import { LoginCardComponent } from 'app/shared/components/login-card/login-card.component';
 
 @Component({
 	selector: 'app-login',
