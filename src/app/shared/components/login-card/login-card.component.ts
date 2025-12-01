@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
   IonButton,
   IonCard,
@@ -6,10 +7,10 @@ import {
   IonImg,
   IonInput,
   IonItem,
-  IonLabel
+  IonLabel,
+  IonSpinner
 } from '@ionic/angular/standalone';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from 'app/core/auth/auth.service';
 
 @Component({
   selector: 'app-login-card',
@@ -17,6 +18,7 @@ import { AuthService } from 'app/core/auth/auth.service';
   styleUrls: ['./login-card.component.scss'],
   standalone: true,
   imports: [
+    CommonModule,
     FormsModule,
     IonCard,
     IonCardContent,
@@ -24,25 +26,21 @@ import { AuthService } from 'app/core/auth/auth.service';
     IonLabel,
     IonInput,
     IonButton,
-    IonImg
+    IonImg,
+    IonSpinner
   ]
 })
 export class LoginCardComponent {
   username = '';
   password = '';
 
+  @Input() loading = false;
   @Output() login = new EventEmitter<{ username: string; password: string }>();
 
-  constructor(private auth: AuthService) {}
-
   onSubmit(): void {
-    this.login.emit({ username: this.username, password: this.password });
-
-    const body = {
-      username: this.username,
+    this.login.emit({
+      username: this.username.trim(),
       password: this.password
-    };
-
-    this.auth.login(body);
+    });
   }
 }

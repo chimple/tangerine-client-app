@@ -15,7 +15,7 @@ export class GroupService {
   constructor(private http: HttpClient) {}
 
   getGroups(): Observable<GroupItem[]> {
-    const token = localStorage.getItem(CONSTANTS.TOKEN_KEY) ?? '';
+    const token = localStorage.getItem(CONSTANTS.AUTH_TOKEN) ?? '';
 
     return this.http.get<RawGroup[]>(this.url, {
       headers: { Authorization: token }
