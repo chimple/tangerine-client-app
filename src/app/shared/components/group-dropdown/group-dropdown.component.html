@@ -1,0 +1,42 @@
+<ion-card class="group-card" role="region" aria-labelledby="group-select-title">
+  <ion-card-content class="card-content">
+    <p id="group-select-title" class="section-title">Choose a Group</p>
+
+    <div class="select-row">
+      <ion-item
+        lines="none"
+        class="select-item"
+        [class.select-item--disabled]="loading || !groups.length"
+        aria-disabled="{{ loading || !groups.length }}">
+
+        <ion-select
+          interface="popover"
+          placeholder="Select a group"
+          [value]="selectedId"
+          [disabled]="loading || !groups.length"
+          (ionChange)="onSelectChange($event.detail.value)"
+          >
+          <ion-select-option
+            *ngFor="let group of groups"
+            [value]="group.id">
+            {{ group.label }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <div class="loading-state" *ngIf="loading" aria-live="polite">
+        <ion-spinner name="crescent" class="spinner"></ion-spinner>
+      </div>
+    </div>
+
+    <ion-button
+      expand="block"
+      class="confirm-button"
+      color="warning"
+      [disabled]="loading || !selectedId"
+      (click)="confirmSelection()"
+      aria-label="Confirm group selection">
+      Next
+    </ion-button>
+  </ion-card-content>
+</ion-card>
