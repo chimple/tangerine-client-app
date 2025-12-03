@@ -10,7 +10,7 @@ import {
   IonSelectOption,
   IonSpinner
 } from '@ionic/angular/standalone';
-import { GroupService, GroupItem } from 'app/core/services/group.service';
+import { ApiService, GroupItem } from 'app/core/services/api.service';
 
 @Component({
   selector: 'app-group-dropdown',
@@ -33,24 +33,22 @@ export class GroupDropdownComponent implements OnInit {
   selectedId?: string;
   loading = false;
 
-  private gs = inject(GroupService);
+  private api = inject(ApiService);
 
   ngOnInit(): void {
     this.load();
   }
 
-  load(): void {
+  async load(): Promise<void> {
     this.loading = true;
-    this.gs.getGroups().subscribe({
-      next: groups => {
-        this.groups = groups;
-        this.loading = false;
-      },
-      error: err => {
-        console.error('Failed to load groups', err);
-        this.loading = false;
-      }
-    });
+    try {
+      this.groups = await this.api.getGroups();
+    } catch (err: any) {
+      console.error('Failed to load groups', err);
+      await this.api.showToast('Failed to load groups', 'danger');
+    } finally {
+      this.loading = false;
+    }
   }
 
   onSelectChange(id?: string | null): void {
