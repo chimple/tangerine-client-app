@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
   IonButton,
   IonCard,
@@ -10,7 +10,7 @@ import {
   IonSelectOption,
   IonSpinner
 } from '@ionic/angular/standalone';
-import { ApiService, GroupItem } from 'app/core/services/api.service';
+import { GroupItem } from 'app/core/services/api.service';
 
 @Component({
   selector: 'app-group-dropdown',
@@ -28,36 +28,21 @@ import { ApiService, GroupItem } from 'app/core/services/api.service';
     IonCardContent,
   ]
 })
-export class GroupDropdownComponent implements OnInit {
-  groups: GroupItem[] = [];
-  selectedId?: string;
-  loading = false;
+export class GroupDropdownComponent {
+  @Input() groups: GroupItem[] = [];
+  @Input() selectedId?: string;
+  @Input() loading = false;
 
-  private api = inject(ApiService);
-
-  ngOnInit(): void {
-    this.load();
-  }
-
-  async load(): Promise<void> {
-    this.loading = true;
-    try {
-      this.groups = await this.api.getGroups();
-    } catch (err: any) {
-      console.error('Failed to load groups', err);
-      await this.api.showToast('Failed to load groups', 'danger');
-    } finally {
-      this.loading = false;
-    }
-  }
+  @Output() selectionChange = new EventEmitter<string>();
+  @Output() confirmClick = new EventEmitter<void>();
 
   onSelectChange(id?: string | null): void {
     if (!id) return;
-    this.selectedId = id;
+    this.selectionChange.emit(id);
   }
 
   confirmSelection(): void {
     if (!this.selectedId) return;
-    console.log('Confirmed group id:', this.selectedId);
+    this.confirmClick.emit();
   }
 }

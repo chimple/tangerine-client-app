@@ -1,5 +1,11 @@
 <app-header></app-header>
 
 <section class="groups-page">
-  <app-group-dropdown></app-group-dropdown>
+  <app-group-dropdown
+    [groups]="groups"
+    [selectedId]="selectedId"
+    [loading]="loading"
+    (selectionChange)="onSelectionChange($event)"
+    (confirmClick)="onConfirmSelection()">
+  </app-group-dropdown>
 </section>

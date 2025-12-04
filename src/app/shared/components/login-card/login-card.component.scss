@@ -30,6 +30,16 @@
   --highlight-height: 2px;
 }
 
+.login-card ion-label {
+  margin-bottom: 1px;
+  font-size: 0.95rem;
+}
+
+.login-card ion-input {
+  margin-top: 1px;
+  --padding-top: 10px;
+}
+
 .login-card .actions {
   width: 100%;
   display: flex;
