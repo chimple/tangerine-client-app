@@ -6,8 +6,12 @@ import { CONSTANTS } from 'app/shared/constants';
 export interface LoginBody { username: string; password: string; }
 export interface LoginResponse { data: { token: string } }
 export interface GroupItem { id: string; label: string; }
+export interface PublishedForm { formId: string; formTitle: string; }
 
 interface RawGroup { _id: string; label: string; }
+interface OnlineSurveyForm { formId: string; published: boolean; }
+interface OnlineSurveyResponse { data: OnlineSurveyForm[]; }
+interface Form { id: string; title: string; type?: string; }
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -42,6 +46,35 @@ export class ApiService {
         error: (err) => reject(err)
       });
     });
+  }
+
+  async getPublishedFormsWithTitle(groupId: string): Promise<PublishedForm[]> {
+    try {
+      const token = localStorage.getItem(this.tokenKey) ?? '';
+
+      const surveyForms = await new Promise<OnlineSurveyResponse>((res, rej) => {
+        this.http.get<OnlineSurveyResponse>(`${CONSTANTS.API_BASE}/onlineSurvey/getOnlineSurveys/${groupId}`, {
+          headers: { Authorization: token }
+        }).subscribe({ next: res, error: rej });
+      });
+
+      const allForms = await new Promise<Form[]>((res, rej) => {
+        this.http.get<Form[]>(`${CONSTANTS.API_BASE}/app/${groupId}/assets/forms.json`, {
+          headers: { Authorization: token }
+        }).subscribe({ next: res, error: rej });
+      });
+
+      const publishedFormIds = (surveyForms?.data || [])
+        .filter(f => f.published)
+        .map(f => f.formId);
+
+      return (allForms || [])
+        .filter(f => publishedFormIds.includes(f.id) && f.type === 'form')
+        .map(f => ({ formId: f.id, formTitle: f.title }));
+    } catch (err) {
+      console.error('Error fetching forms:', err);
+      throw err;
+    }
   }
 
   getToken(): string | null {

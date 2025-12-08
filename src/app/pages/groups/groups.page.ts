@@ -45,5 +45,13 @@ export class GroupsPage implements OnInit {
   async onConfirmSelection(): Promise<void> {
     if (!this.selectedId) return;
     console.log('Confirmed group id:', this.selectedId);
+
+    try {
+      const publishedFormsWithTitle = await this.api.getPublishedFormsWithTitle(this.selectedId);
+      console.log('Publised Online Survey Forms with title:', publishedFormsWithTitle);
+    } catch (err: any) {
+      console.error('Failed to fetch forms:', err);
+      await this.api.showToast('Failed to fetch forms', 'danger');
+    }
   }
 }
