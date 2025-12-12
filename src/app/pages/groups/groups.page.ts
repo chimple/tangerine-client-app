@@ -16,7 +16,7 @@ import { ApiService, GroupItem } from 'app/core/services/api.service';
 })
 export class GroupsPage implements OnInit {
   groups: GroupItem[] = [];
-  selectedId?: string;
+  selectedGroupId?: string;
   loading = false;
 
   private api = inject(ApiService);
@@ -31,23 +31,22 @@ export class GroupsPage implements OnInit {
     try {
       this.groups = await this.api.getGroups();
     } catch (err: any) {
-      console.error('Failed to load groups', err);
       await this.api.showToast('Failed to load groups', 'danger');
     } finally {
       this.loading = false;
     }
   }
 
-  onSelectionChange(id: string): void {
-    this.selectedId = id;
+  onGroupSelectionChange(id: string): void {
+    this.selectedGroupId = id;
   }
 
-  async onConfirmSelection(): Promise<void> {
-    if (!this.selectedId) return;
-    console.log('Confirmed group id:', this.selectedId);
+  async onConfirmGroupSelection(): Promise<void> {
+    if (!this.selectedGroupId) return;
+     console.log('Confirmed group id:', this.selectedGroupId);
 
     try {
-      const publishedFormsWithTitle = await this.api.getPublishedFormsWithTitle(this.selectedId);
+      const publishedFormsWithTitle = await this.api.getPublishedFormsWithTitle(this.selectedGroupId);
       console.log('Publised Online Survey Forms with title:', publishedFormsWithTitle);
     } catch (err: any) {
       console.error('Failed to fetch forms:', err);

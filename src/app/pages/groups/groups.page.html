@@ -3,9 +3,9 @@
 <section class="groups-page">
   <app-group-dropdown
     [groups]="groups"
-    [selectedId]="selectedId"
+    [selectedGroupId]="selectedGroupId"
     [loading]="loading"
-    (selectionChange)="onSelectionChange($event)"
-    (confirmClick)="onConfirmSelection()">
+    (selectionChange)="onGroupSelectionChange($event)"
+    (confirmClick)="onConfirmGroupSelection()">
   </app-group-dropdown>
 </section>

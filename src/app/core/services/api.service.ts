@@ -35,8 +35,10 @@ export class ApiService {
   }
 
   async getGroups(): Promise<GroupItem[]> {
+    const token = this.getToken();
+    if (!token) throw new Error('Unauthorized');
+
     return new Promise((resolve, reject) => {
-      const token = localStorage.getItem(this.tokenKey) ?? '';
       this.http.get<RawGroup[]>(`${CONSTANTS.API_BASE}/nest/group/list`, {
         headers: { Authorization: token }
       }).subscribe({
@@ -49,9 +51,10 @@ export class ApiService {
   }
 
   async getPublishedFormsWithTitle(groupId: string): Promise<PublishedForm[]> {
-    try {
-      const token = localStorage.getItem(this.tokenKey) ?? '';
+    const token = this.getToken();
+    if (!token) throw new Error('Unauthorized');
 
+    try {
       const surveyForms = await new Promise<OnlineSurveyResponse>((res, rej) => {
         this.http.get<OnlineSurveyResponse>(`${CONSTANTS.API_BASE}/onlineSurvey/getOnlineSurveys/${groupId}`, {
           headers: { Authorization: token }

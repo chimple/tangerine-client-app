@@ -12,7 +12,7 @@
         <ion-select
           interface="popover"
           placeholder="Select a group"
-          [value]="selectedId"
+          [value]="selectedGroupId"
           [disabled]="loading || !groups.length"
           (ionChange)="onSelectChange($event.detail.value)"
           >
@@ -33,7 +33,7 @@
       expand="block"
       class="confirm-button"
       color="warning"
-      [disabled]="loading || !selectedId"
+      [disabled]="loading || !selectedGroupId"
       (click)="confirmSelection()"
       aria-label="Confirm group selection">
       Next

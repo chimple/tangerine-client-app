@@ -30,7 +30,7 @@ import { GroupItem } from 'app/core/services/api.service';
 })
 export class GroupDropdownComponent {
   @Input() groups: GroupItem[] = [];
-  @Input() selectedId?: string;
+  @Input() selectedGroupId?: string;
   @Input() loading = false;
 
   @Output() selectionChange = new EventEmitter<string>();
@@ -42,7 +42,7 @@ export class GroupDropdownComponent {
   }
 
   confirmSelection(): void {
-    if (!this.selectedId) return;
+    if (!this.selectedGroupId) return;
     this.confirmClick.emit();
   }
 }

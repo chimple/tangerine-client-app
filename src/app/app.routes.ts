@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { AuthGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -9,6 +10,7 @@ export const routes: Routes = [
   },
   {
     path: 'groups',
+    canActivate: [AuthGuard],
     loadComponent: () =>
       import('./pages/groups/groups.page').then(m => m.GroupsPage)
   },
