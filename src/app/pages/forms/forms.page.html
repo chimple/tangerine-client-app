@@ -1,0 +1,9 @@
+<app-header></app-header>
+
+<section class="forms-page">
+  <app-form-list
+    [forms]="forms"
+    [loading]="loading"
+    (formSelect)="onFormSelect($event)">
+  </app-form-list>
+</section>
