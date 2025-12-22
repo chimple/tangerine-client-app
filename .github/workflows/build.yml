@@ -11,32 +11,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: true
           token: ${{ secrets.ACCESS_TOKEN }}
 
-      - name: Setup java
-        uses: actions/setup-java@v1
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
-          java-version: "21"
+          java-version: "17" # Check if your project supports 21; 17 is safer
+          distribution: 'temurin'
 
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: 24.x
+          node-version: "20"
 
-      - name: Install app dependencies
+      - name: Install dependencies
         run: npm install
-
-      # - name: Create Google Services JSON File and key.jks
-      #   working-directory: ./android/app/
-        # env:
-        #   GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-        #   SHA_KEY: ${{ secrets.SHA_KEY }}
-        # run: |
-        #   echo $GOOGLE_SERVICES_JSON | base64 -di > google-services.json
-        #   echo $SHA_KEY | base64 -di > key.jks
 
       - name: Build
         env:
@@ -46,29 +38,34 @@ jobs:
 
         run: npm run build
 
-      - name: Deploy to Firebase
+      - name: Deploy to Firebase Hosting
         uses: w9jds/firebase-action@v13.0.3
         with:
           args: deploy --project ${{ secrets.FIREBASE_PROJECT_ID }} --only hosting:tangerine-client-app-main
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
-      - name: Make gradlew executable
+      - name: Build Android APK
         working-directory: ./android/
-        run: chmod +x ./gradlew
-
-      - name: Generate the Android App assembleDebug
-        working-directory: ./android/
-        run: ./gradlew assembleDebug
-
-      - name: Deploy apk
-        working-directory: .
         run: |
-          cd android/app/build/outputs/apk/debug/
-          git init
-          git config --global user.email skanda@sutara.org
-          git config --global user.name  kvskandakumar
-          git remote add origin https://${{ secrets.ACCESS_TOKEN }}@github.com/chimple/cuba.git
+          chmod +x ./gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+
+      # Optional: Keep your push logic but make it cleaner
+      - name: Push APK to Branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk .
+          git config --global user.email "skanda@sutara.org"
+          git config --global user.name "kvskandakumar"
+          git remote add origin https://${{ secrets.ACCESS_TOKEN }}@github.com/chimple/tangerine-client-app.git
           git checkout -b apk
           git add app-debug.apk
           git commit -m "created apk"
