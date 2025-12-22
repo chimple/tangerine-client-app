@@ -8,7 +8,7 @@ export class AuthGuard {
   private router = inject(Router);
 
   canActivate(): boolean {
-    if (this.api.getToken()) return true;
+    if (this.api.isUserLoggedIn()) return true;
     this.router.navigateByUrl('/login');
     return false;
   }

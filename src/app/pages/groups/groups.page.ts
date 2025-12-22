@@ -45,11 +45,11 @@ export class GroupsPage implements OnInit {
     if (!this.selectedGroupId) return;
 
     try {
-      await this.api.getPublishedFormsWithTitle(this.selectedGroupId);
+      this.api.saveGroupId(this.selectedGroupId);
       await this.router.navigateByUrl(`/forms/${this.selectedGroupId}`);
     } catch (err: any) {
-      console.error('Failed to fetch forms:', err);
-      await this.api.showToast('Failed to fetch forms', 'danger');
+      console.error('Failed to navigate:', err);
+      await this.api.showToast('Failed to navigate', 'danger');
     }
   }
 }

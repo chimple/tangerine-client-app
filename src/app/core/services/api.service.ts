@@ -84,8 +84,24 @@ export class ApiService {
     return localStorage.getItem(this.tokenKey);
   }
 
+  isUserLoggedIn(): boolean {
+    return !!this.getToken();
+  }
+
   clearToken(): void {
     localStorage.removeItem(this.tokenKey);
+  }
+
+  saveGroupId(groupId: string): void {
+    localStorage.setItem(CONSTANTS.GROUP_ID, groupId);
+  }
+
+  getGroupId(): string | null {
+    return localStorage.getItem(CONSTANTS.GROUP_ID);
+  }
+
+  clearGroupId(): void {
+    localStorage.removeItem(CONSTANTS.GROUP_ID);
   }
 
   async showToast(msg: string, color: string = 'primary'): Promise<void> {
