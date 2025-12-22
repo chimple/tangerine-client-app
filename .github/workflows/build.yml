@@ -19,8 +19,9 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          java-version: "17" # Check if your project supports 21; 17 is safer
-          distribution: 'temurin'
+          java-version: "21"
+          distribution: "temurin"
+          cache: "gradle"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
