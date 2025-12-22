@@ -59,7 +59,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: |
-          cp android/app/build/outputs/apk/debug/app-debug.apk .
+          cd android/app/build/outputs/apk/debug/
+          git init
           git config --global user.email "skanda@sutara.org"
           git config --global user.name "kvskandakumar"
           git remote add origin https://${{ secrets.ACCESS_TOKEN }}@github.com/chimple/tangerine-client-app.git
