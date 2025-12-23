@@ -1,14 +1,14 @@
 :host {
   display: block;
   min-height: 100vh;
-  background: #f9f9f9;
+  background: var(--color-light-bg);
 }
 
 .forms-page {
   padding: 16px;
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 56px);
+  min-height: calc(100vh - var(--header-height));
   width: 100%;
   box-sizing: border-box;
 

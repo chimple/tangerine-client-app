@@ -2,13 +2,6 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonList, IonItem, IonLabel, IonIcon, IonSpinner, IonNote, IonListHeader } from '@ionic/angular/standalone';
 import { PublishedForm } from 'app/core/services/api.service';
-import { addIcons } from 'ionicons';
-import { documentTextOutline, chevronForward } from 'ionicons/icons';
-
-addIcons({
-  'chevron-forward': chevronForward,
-  'document-text-outline': documentTextOutline
-});
 
 
 @Component({

@@ -63,23 +63,23 @@
     --padding-end: 0;
     --inner-padding-end: 0;
     --margin-bottom: 8px;
-    background: #ffffff;
+    background: var(--color-white);
     border-radius: 6px;
     transition: all 0.2s ease;
 
     &:hover {
-      background: #f9f9f9;
+      background: var(--color-light-bg);
     }
 
     &:active,
     &:focus {
-      background: #f0f0f0;
+      background: var(--color-light-gray);
     }
 
     .form-title {
       font-size: 15px;
       font-weight: 400;
-      color: #1a1a1a;
+      color: var(--color-dark-text);
       margin: 0;
     }
 

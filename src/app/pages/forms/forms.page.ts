@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HeaderComponent } from 'app/shared/components/header/header.component';
 import { FormListComponent } from 'app/shared/components/form-list/form-list.component';
 import { ApiService, PublishedForm } from 'app/core/services/api.service';
+import { CONSTANTS } from 'app/shared/constants';
 
 @Component({
   selector: 'app-forms',
@@ -42,8 +43,7 @@ export class FormsPage implements OnInit {
   }
 
   onFormSelect(form: PublishedForm): void {
-    const formUrl = `https://tangerinestaging.ustadmobile.com/releases/prod/online-survey-apps/${this.groupId}/${form.formId}/#/form/${form.formId}`;
-    console.log('Opening form:', formUrl);
-    window.location.href = formUrl;
+    const formUrl = `${CONSTANTS.API_BASE}/releases/prod/online-survey-apps/${this.groupId}/${form.formId}/#/form/${form.formId}`;
+    window.open(formUrl, '_blank');
   }
 }
