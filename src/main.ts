@@ -5,12 +5,13 @@ import { routes } from './app/app.routes';
 import { provideIonicAngular } from '@ionic/angular/standalone';
 import { provideHttpClient } from '@angular/common/http';
 import { addIcons } from 'ionicons';
-import { documentTextOutline, chevronForward } from 'ionicons/icons';
+import { documentTextOutline, chevronForward, logOutOutline } from 'ionicons/icons';
 
 // Register icons globally at app initialization
 addIcons({
   'chevron-forward': chevronForward,
-  'document-text-outline': documentTextOutline
+  'document-text-outline': documentTextOutline,
+  'log-out-outline': logOutOutline
 });
 
 bootstrapApplication(App, {

@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ToastController } from '@ionic/angular/standalone';
 import { CONSTANTS } from 'app/shared/constants';
+import { Router } from '@angular/router';
 
 export interface LoginBody { username: string; password: string; }
 export interface LoginResponse { data: { token: string } }
@@ -18,6 +19,7 @@ export class ApiService {
   private tokenKey = CONSTANTS.AUTH_TOKEN;
   private http = inject(HttpClient);
   private toastCtrl = inject(ToastController);
+  private router = inject(Router);
 
   async login(body: LoginBody): Promise<LoginResponse> {
     return new Promise((resolve, reject) => {
@@ -80,16 +82,23 @@ export class ApiService {
     }
   }
 
+  async logout(): Promise<void> {
+    this.clearToken();
+    this.clearGroupId();
+    await this.router.navigateByUrl('/login');
+    await this.showToast('Logged out successfully', 'success');
+  }
+
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
   }
 
-  isUserLoggedIn(): boolean {
-    return !!this.getToken();
-  }
-
   clearToken(): void {
     localStorage.removeItem(this.tokenKey);
+  }
+
+  isUserLoggedIn(): boolean {
+    return !!this.getToken();
   }
 
   saveGroupId(groupId: string): void {

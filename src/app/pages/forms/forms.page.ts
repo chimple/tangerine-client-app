@@ -1,4 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { HeaderComponent } from 'app/shared/components/header/header.component';
 import { FormListComponent } from 'app/shared/components/form-list/form-list.component';
@@ -22,6 +23,7 @@ export class FormsPage implements OnInit {
 
   private api = inject(ApiService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   ngOnInit(): void {
     this.groupId = this.route.snapshot.paramMap.get('groupId') || '';
@@ -45,5 +47,9 @@ export class FormsPage implements OnInit {
   onFormSelect(form: PublishedForm): void {
     const formUrl = `${CONSTANTS.API_BASE}/releases/prod/online-survey-apps/${this.groupId}/${form.formId}/#/form/${form.formId}`;
     window.open(formUrl, '_blank');
+  }
+
+  async onLogout(): Promise<void> {
+    await this.api.logout();
   }
 }

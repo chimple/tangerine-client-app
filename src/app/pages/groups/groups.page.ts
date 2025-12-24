@@ -52,4 +52,8 @@ export class GroupsPage implements OnInit {
       await this.api.showToast('Failed to navigate', 'danger');
     }
   }
+
+  async onLogout(): Promise<void> {
+    await this.api.logout();
+  }
 }

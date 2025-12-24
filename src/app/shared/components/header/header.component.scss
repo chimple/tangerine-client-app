@@ -2,12 +2,19 @@
 	display: block;
 }
 
+.header-content {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+}
+
 .brand {
 	display: flex;
 	align-items: center;
 	gap: 10px;
+	flex: 1;
 }
-
 
 .title {
 	font-weight: 600;
