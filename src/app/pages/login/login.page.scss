@@ -1,7 +1,7 @@
 .login-container {
 	display: grid;
 	place-items: center;
-	min-height: calc(100dvh - 56px);
+	min-height: calc(100dvh - var(--header-height));
 	padding: 16px;
 }
 

@@ -4,7 +4,7 @@
   background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
 }
 
-.groups-page {
+.server-container {
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -14,7 +14,7 @@
   width: 100%;
   box-sizing: border-box;
 
-  app-group-dropdown {
+  app-server-input {
     width: 100%;
     display: flex;
     justify-content: center;
@@ -22,7 +22,7 @@
 }
 
 @media (max-width: 576px) {
-  .groups-page {
+  .server-container {
     padding: 16px;
   }
 }
