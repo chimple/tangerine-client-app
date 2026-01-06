@@ -45,7 +45,8 @@ export class FormsPage implements OnInit {
   }
 
   onFormSelect(form: PublishedForm): void {
-    const formUrl = `${CONSTANTS.API_BASE}/releases/prod/online-survey-apps/${this.groupId}/${form.formId}/#/form/${form.formId}`;
+    const serverUrl = this.api.getServerUrl();
+    const formUrl = `${serverUrl}/releases/prod/online-survey-apps/${this.groupId}/${form.formId}/#/form/${form.formId}`;
     window.open(formUrl, '_blank');
   }
 

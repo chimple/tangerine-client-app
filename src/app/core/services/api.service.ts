@@ -22,12 +22,14 @@ export class ApiService {
   private router = inject(Router);
 
   async login(body: LoginBody): Promise<LoginResponse> {
+    const serverUrl = this.getServerUrl();
+    if (!serverUrl) throw new Error('Server URL not configured');
     return new Promise((resolve, reject) => {
-      this.http.post<LoginResponse>(`${CONSTANTS.API_BASE}/login`, body).subscribe({
+      this.http.post<LoginResponse>(`${serverUrl}/login`, body).subscribe({
         next: (res) => {
           const token = res?.data?.token;
           if (token) {
-            localStorage.setItem(this.tokenKey, token);
+            this.saveToken(token);
           }
           resolve(res);
         },
@@ -39,9 +41,11 @@ export class ApiService {
   async getGroups(): Promise<GroupItem[]> {
     const token = this.getToken();
     if (!token) throw new Error('Unauthorized');
+    const serverUrl = this.getServerUrl();
+    if (!serverUrl) throw new Error('Server URL not configured');
 
     return new Promise((resolve, reject) => {
-      this.http.get<RawGroup[]>(`${CONSTANTS.API_BASE}/nest/group/list`, {
+      this.http.get<RawGroup[]>(`${serverUrl}/nest/group/list`, {
         headers: { Authorization: token }
       }).subscribe({
         next: (list) => {
@@ -55,16 +59,18 @@ export class ApiService {
   async getPublishedFormsWithTitle(groupId: string): Promise<PublishedForm[]> {
     const token = this.getToken();
     if (!token) throw new Error('Unauthorized');
+    const serverUrl = this.getServerUrl();
+    if (!serverUrl) throw new Error('Server URL not configured');
 
     try {
       const surveyForms = await new Promise<OnlineSurveyResponse>((res, rej) => {
-        this.http.get<OnlineSurveyResponse>(`${CONSTANTS.API_BASE}/onlineSurvey/getOnlineSurveys/${groupId}`, {
+        this.http.get<OnlineSurveyResponse>(`${serverUrl}/onlineSurvey/getOnlineSurveys/${groupId}`, {
           headers: { Authorization: token }
         }).subscribe({ next: res, error: rej });
       });
 
       const allForms = await new Promise<Form[]>((res, rej) => {
-        this.http.get<Form[]>(`${CONSTANTS.API_BASE}/app/${groupId}/assets/forms.json`, {
+        this.http.get<Form[]>(`${serverUrl}/app/${groupId}/assets/forms.json`, {
           headers: { Authorization: token }
         }).subscribe({ next: res, error: rej });
       });
@@ -85,8 +91,13 @@ export class ApiService {
   async logout(): Promise<void> {
     this.clearToken();
     this.clearGroupId();
-    await this.router.navigateByUrl('/login');
+    this.clearServerUrl();
+    await this.router.navigateByUrl('/server');
     await this.showToast('Logged out successfully', 'success');
+  }
+
+  saveToken(token: string): void {
+    localStorage.setItem(this.tokenKey, token);
   }
 
   getToken(): string | null {
@@ -111,6 +122,18 @@ export class ApiService {
 
   clearGroupId(): void {
     localStorage.removeItem(CONSTANTS.GROUP_ID);
+  }
+
+  saveServerUrl(url: string): void {
+    localStorage.setItem(CONSTANTS.SERVER_URL, url);
+  }
+
+  getServerUrl(): string | null {
+    return localStorage.getItem(CONSTANTS.SERVER_URL);
+  }
+
+  clearServerUrl(): void {
+    localStorage.removeItem(CONSTANTS.SERVER_URL);
   }
 
   async showToast(msg: string, color: string = 'primary'): Promise<void> {

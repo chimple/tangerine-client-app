@@ -1,5 +1,6 @@
 export const CONSTANTS = {
-  API_BASE: 'https://tangerinestaging.ustadmobile.com',
+  // Centralized keys for client-side persistent storage
   AUTH_TOKEN: 'jwtToken',
-  GROUP_ID: 'selectedGroupId'
+  GROUP_ID: 'selectedGroupId',
+  SERVER_URL: 'serverUrl'
 };
