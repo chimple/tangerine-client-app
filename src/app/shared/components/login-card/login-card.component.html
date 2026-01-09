@@ -1,0 +1,26 @@
+<ion-card class="login-card">
+	<ion-img class="logo" src="/tangerine-logo.png" alt="logo" draggable="false"/>
+	<ion-card-content>
+		<ion-item fill="outline">
+			<ion-label position="floating">Username</ion-label>
+			<ion-input [(ngModel)]="username" autocomplete="username" />
+		</ion-item>
+
+		<ion-item fill="outline">
+			<ion-label position="floating">Password</ion-label>
+			<ion-input [(ngModel)]="password" type="password" autocomplete="current-password" />
+		</ion-item>
+
+		<div class="actions">
+			<ion-button
+        color="warning"
+        expand="block"
+        [disabled]="loading || !username || !password"
+        (click)="onSubmit()">
+        <ion-spinner *ngIf="loading" name="lines-small"></ion-spinner>
+        <span *ngIf="!loading">Login</span>
+      </ion-button>
+		</div>
+	</ion-card-content>
+</ion-card>
+
