@@ -96,6 +96,41 @@ export class ApiService {
     await this.showToast('Logged out successfully', 'success');
   }
 
+  async validateServer(serverUrl: string): Promise<boolean> {
+    if (!this.isValidUrl(serverUrl)) {
+      await this.showToast('Invalid server URL', 'danger');
+      return false;
+    }
+
+    return new Promise((resolve) => {
+      this.http.get<any>(`${serverUrl}/.well-known/tangerine`).subscribe({
+        next: (res) => {
+          if (res?.status === 'ok' && res?.appName === 'Tangerine') {
+            this.showToast('Welcome! Please log in', 'success');
+            this.saveServerUrl(serverUrl);
+            resolve(true);
+          } else {
+            this.showToast('Invalid server response', 'danger');
+            resolve(false);
+          }
+        },
+        error: () => {
+          this.showToast('Failed to validate server', 'danger');
+          resolve(false);
+        }
+      });
+    });
+  }
+
+  private isValidUrl(url: string): boolean {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   saveToken(token: string): void {
     localStorage.setItem(this.tokenKey, token);
   }

@@ -18,17 +18,14 @@ export class ServerPage {
   private api = inject(ApiService);
   private router = inject(Router);
 
-  onServerSubmit(serverUrl: string): void {
+  async onServerSubmit(serverUrl: string): Promise<void> {
     if (!serverUrl) {
       return;
     }
 
-    try {
-      this.api.saveServerUrl(serverUrl);
+    const isServerValid = await this.api.validateServer(serverUrl);
+    if (isServerValid) {
       this.router.navigateByUrl('/login');
-    } catch (err: any) {
-      console.error('Failed to save server', err);
-      this.api.showToast('Failed to save server', 'danger');
     }
   }
 }
