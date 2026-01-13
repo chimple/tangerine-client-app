@@ -155,6 +155,10 @@ export class ApiService {
     return localStorage.getItem(CONSTANTS.GROUP_ID);
   }
 
+  hasGroupId(): boolean {
+    return !!this.getGroupId();
+  }
+
   clearGroupId(): void {
     localStorage.removeItem(CONSTANTS.GROUP_ID);
   }
@@ -165,6 +169,10 @@ export class ApiService {
 
   getServerUrl(): string | null {
     return localStorage.getItem(CONSTANTS.SERVER_URL);
+  }
+
+  hasServerUrl(): boolean {
+    return !!this.getServerUrl();
   }
 
   clearServerUrl(): void {
