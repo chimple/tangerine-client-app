@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { HeaderComponent } from 'app/shared/components/header/header.component';
 import { GroupDropdownComponent } from 'app/shared/components/group-dropdown/group-dropdown.component';
 import { ApiService, GroupItem } from 'app/core/services/api.service';
+import { IonContent } from "@ionic/angular/standalone";
 
 @Component({
   selector: 'app-groups',
@@ -11,8 +12,9 @@ import { ApiService, GroupItem } from 'app/core/services/api.service';
   standalone: true,
   imports: [
     HeaderComponent,
-    GroupDropdownComponent
-  ]
+    GroupDropdownComponent,
+    IonContent
+]
 })
 export class GroupsPage implements OnInit {
   groups: GroupItem[] = [];

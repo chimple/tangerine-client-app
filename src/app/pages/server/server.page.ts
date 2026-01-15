@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { HeaderComponent } from 'app/shared/components/header/header.component';
 import { ServerInputComponent } from 'app/shared/components/server-input/server-input.component';
 import { ApiService } from 'app/core/services/api.service';
+import { IonContent } from "@ionic/angular/standalone";
 
 @Component({
   selector: 'app-server',
@@ -11,8 +12,9 @@ import { ApiService } from 'app/core/services/api.service';
   standalone: true,
   imports: [
     HeaderComponent,
-    ServerInputComponent
-  ]
+    ServerInputComponent,
+    IonContent
+]
 })
 export class ServerPage {
   private api = inject(ApiService);

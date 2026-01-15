@@ -5,6 +5,7 @@ import { HeaderComponent } from 'app/shared/components/header/header.component';
 import { FormListComponent } from 'app/shared/components/form-list/form-list.component';
 import { ApiService, PublishedForm } from 'app/core/services/api.service';
 import { CONSTANTS } from 'app/shared/constants';
+import { IonContent } from "@ionic/angular/standalone";
 
 @Component({
   selector: 'app-forms',
@@ -13,8 +14,9 @@ import { CONSTANTS } from 'app/shared/constants';
   standalone: true,
   imports: [
     HeaderComponent,
-    FormListComponent
-  ]
+    FormListComponent,
+    IonContent
+]
 })
 export class FormsPage implements OnInit {
   forms: PublishedForm[] = [];
