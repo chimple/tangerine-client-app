@@ -1,11 +1,13 @@
-<app-header></app-header>
+<app-header (logout)="onLogout()"></app-header>
 
-<section class="groups-page">
-  <app-group-dropdown
-    [groups]="groups"
-    [selectedGroupId]="selectedGroupId"
-    [loading]="loading"
-    (selectionChange)="onGroupSelectionChange($event)"
-    (confirmClick)="onConfirmGroupSelection()">
-  </app-group-dropdown>
-</section>
+<ion-content fullscreen="true">
+  <section class="groups-page">
+    <app-group-dropdown
+      [groups]="groups"
+      [selectedGroupId]="selectedGroupId"
+      [loading]="loading"
+      (selectionChange)="onGroupSelectionChange($event)"
+      (confirmClick)="onConfirmGroupSelection()">
+    </app-group-dropdown>
+  </section>
+</ion-content>

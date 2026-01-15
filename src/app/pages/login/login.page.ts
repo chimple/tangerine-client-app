@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { HeaderComponent } from 'app/shared/components/header/header.component';
 import { LoginCardComponent } from 'app/shared/components/login-card/login-card.component';
 import { ApiService } from 'app/core/services/api.service';
+import { IonContent } from "@ionic/angular/standalone";
 
 @Component({
   selector: 'app-login',
@@ -11,8 +12,9 @@ import { ApiService } from 'app/core/services/api.service';
   standalone: true,
   imports: [
     HeaderComponent,
-    LoginCardComponent
-  ]
+    LoginCardComponent,
+    IonContent
+]
 })
 export class LoginPage {
   loading = false;

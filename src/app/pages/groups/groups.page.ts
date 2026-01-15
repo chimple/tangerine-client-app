@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { HeaderComponent } from 'app/shared/components/header/header.component';
 import { GroupDropdownComponent } from 'app/shared/components/group-dropdown/group-dropdown.component';
 import { ApiService, GroupItem } from 'app/core/services/api.service';
+import { IonContent } from "@ionic/angular/standalone";
 
 @Component({
   selector: 'app-groups',
@@ -11,8 +12,9 @@ import { ApiService, GroupItem } from 'app/core/services/api.service';
   standalone: true,
   imports: [
     HeaderComponent,
-    GroupDropdownComponent
-  ]
+    GroupDropdownComponent,
+    IonContent
+]
 })
 export class GroupsPage implements OnInit {
   groups: GroupItem[] = [];
@@ -43,14 +45,17 @@ export class GroupsPage implements OnInit {
 
   async onConfirmGroupSelection(): Promise<void> {
     if (!this.selectedGroupId) return;
-     console.log('Confirmed group id:', this.selectedGroupId);
 
     try {
-      const publishedFormsWithTitle = await this.api.getPublishedFormsWithTitle(this.selectedGroupId);
-      console.log('Publised Online Survey Forms with title:', publishedFormsWithTitle);
+      this.api.saveGroupId(this.selectedGroupId);
+      await this.router.navigateByUrl(`/forms/${this.selectedGroupId}`);
     } catch (err: any) {
-      console.error('Failed to fetch forms:', err);
-      await this.api.showToast('Failed to fetch forms', 'danger');
+      console.error('Failed to navigate:', err);
+      await this.api.showToast('Failed to navigate', 'danger');
     }
+  }
+
+  async onLogout(): Promise<void> {
+    await this.api.logout();
   }
 }
