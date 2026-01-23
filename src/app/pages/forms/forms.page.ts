@@ -16,7 +16,7 @@ import { IonContent } from "@ionic/angular/standalone";
     HeaderComponent,
     FormListComponent,
     IonContent
-]
+  ]
 })
 export class FormsPage implements OnInit {
   forms: PublishedForm[] = [];
@@ -48,8 +48,12 @@ export class FormsPage implements OnInit {
 
   onFormSelect(form: PublishedForm): void {
     const serverUrl = this.api.getServerUrl();
-    const formUrl = `${serverUrl}/releases/prod/online-survey-apps/${this.groupId}/${form.formId}/#/form/${form.formId}`;
-    window.open(formUrl, '_blank');
+    const isAppOffline = true; //call bridge method to check if the app is offline later
+    const formUrl = isAppOffline
+      ? `/releases/prod/online-survey-apps/${this.groupId}/${form.formId}/index.html#/form/${form.formId}`
+      : `${serverUrl}/releases/prod/online-survey-apps/${this.groupId}/${form.formId}/index.html#/form/${form.formId}`;
+
+    window.location.href = formUrl;
   }
 
   async onLogout(): Promise<void> {
