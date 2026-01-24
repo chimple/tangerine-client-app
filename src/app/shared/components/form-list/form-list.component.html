@@ -13,15 +13,16 @@
     <ion-list-header class="published-forms-header">
       <ion-label>Published Forms</ion-label>
     </ion-list-header>
-    <ion-item
-      *ngFor="let form of forms"
-      button
-      (click)="onFormClick(form)"
-      class="form-item">
-      <ion-label>
-        <p class="form-title">{{ form.formTitle }}</p>
-      </ion-label>
-      <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
-    </ion-item>
+    @for (form of forms; track form.formTitle) {
+      <ion-item
+        [button]="true"
+        (click)="onFormClick(form)"
+        class="form-item">
+        <ion-label>
+          <p class="form-title">{{ form.formTitle }}</p>
+        </ion-label>
+        <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
+      </ion-item>
+    }
   </ion-list>
 </div>

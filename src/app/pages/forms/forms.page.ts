@@ -6,6 +6,8 @@ import { FormListComponent } from 'app/shared/components/form-list/form-list.com
 import { ApiService, PublishedForm } from 'app/core/services/api.service';
 import { CONSTANTS } from 'app/shared/constants';
 import { IonContent } from "@ionic/angular/standalone";
+import {Capacitor} from '@capacitor/core';
+import {NativeWebView} from '../../plugin/nativeWebView';
 
 @Component({
   selector: 'app-forms',
@@ -46,10 +48,18 @@ export class FormsPage implements OnInit {
     }
   }
 
-  onFormSelect(form: PublishedForm): void {
+  async onFormSelect(form: PublishedForm): Promise<void> {
     const serverUrl = this.api.getServerUrl();
     const formUrl = `${serverUrl}/releases/prod/online-survey-apps/${this.groupId}/${form.formId}/#/form/${form.formId}`;
-    window.open(formUrl, '_blank');
+    if(!Capacitor.isNativePlatform()) {
+      window.open(formUrl, '_blank');
+    } else {
+      try {
+        await NativeWebView.open({url: formUrl});
+      } catch (error) {
+        console.log('Error from capacitor:', error)
+      }
+    }
   }
 
   async onLogout(): Promise<void> {
