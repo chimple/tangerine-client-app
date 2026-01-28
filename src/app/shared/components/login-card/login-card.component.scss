@@ -49,14 +49,13 @@
 
 .login-card .actions ion-button {
   min-width: 120px;
-  width: 100%;
-  max-width: 220px;
+  width: 90%;
   --border-radius: 8px;
   font-weight: 550;
 }
 
 /* smaller screens */
-@media (max-width: 420px) {
+@media (max-width: 576px) {
   .login-card {
     margin: 4vh auto;
     padding: 1rem;

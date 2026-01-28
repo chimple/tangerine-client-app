@@ -1,4 +1,4 @@
-.group-card {
+.server-input-card {
   width: 100%;
   max-width: 450px;
   padding: 0;
@@ -24,68 +24,36 @@
   line-height: 1.2;
 }
 
-.select-item {
+.input-item {
   --background: var(--ion-color-light-shade, #f8f9fa);
-  margin: 0 0 1.5rem;
   border: 2px solid var(--ion-color-step-200, #e6e7eb);
   border-radius: 14px;
   overflow: hidden;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  width: 100%;
-  min-width: 0;
-  --padding-start: 0;
-  --padding-end: 0;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  margin-bottom: 0;
 }
 
-.select-item:not(.select-item--disabled) {
-  border-color: var(--ion-color-step-300, #d1d5db);
-}
-
-.select-item:not(.select-item--disabled):focus-within {
+.input-item:focus-within {
   border-color: var(--ion-color-primary, #3880ff);
   box-shadow: 0 0 0 4px rgba(56, 128, 255, 0.15);
   transform: translateY(-1px);
 }
 
-.select-item--disabled {
-  opacity: 0.6;
-  pointer-events: none;
-  background-color: var(--ion-color-step-50, #f9fafb);
+.input-item ion-input {
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+  font-size: 1.05rem;
 }
 
-ion-select {
-  width: 100%;
-  min-width: 0;
-  --padding-start: 20px;
-  --padding-end: 20px;
-  --padding-top:8px;
-  --padding-bottom: 8px;
-  font-size: 1.1rem;
-  font-weight: 500;
-  display: block;
-  color: var(--ion-color-step-800, #1f2937);
-}
-
-ion-select::part(text) {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.loading-state {
+.actions {
+  margin-top: 1.75rem;
   display: flex;
   justify-content: center;
-  padding: 1.25rem 0;
 }
 
-.spinner {
-  width: 32px;
-  height: 32px;
-  color: var(--ion-color-primary);
-}
-
-.confirm-button {
-  margin-top: 0.75rem;
+.submit-button {
   font-weight: 600;
   font-size: 1.05rem;
   --border-radius: 14px;
@@ -93,9 +61,10 @@ ion-select::part(text) {
   letter-spacing: 0.01em;
   --box-shadow: 0 8px 16px rgba(var(--ion-color-warning-rgb), 0.25);
   transition: transform 0.2s ease;
+  width: 100%;
 }
 
-.confirm-button::part(native):active {
+.submit-button::part(native):active {
   transform: scale(0.98);
 }
 
@@ -109,22 +78,22 @@ ion-select::part(text) {
     margin-bottom: 1.25rem;
   }
 
-  .group-card {
+  .server-input-card {
     max-width: 100%;
     border-radius: 16px;
     box-shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
   }
 
-  ion-select {
-    font-size: 1.05rem;
-    --padding-top: 14px;
-    --padding-bottom: 14px;
+  .input-item ion-input {
+    font-size: 1rem;
   }
 
-  .confirm-button {
+  .submit-button {
     height: 50px;
     font-size: 1rem;
   }
+
+  .actions {
+    margin-top: 1.5rem;
+  }
 }
-
-

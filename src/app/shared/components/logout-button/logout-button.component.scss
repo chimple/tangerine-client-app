@@ -1,0 +1,19 @@
+:host {
+  display: block;
+}
+
+.logout-btn {
+  --color: var(--ion-color-primary-contrast);
+  --padding-start: 8px;
+  --padding-end: 8px;
+  font-size: 20px;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    opacity: 0.6;
+  }
+}

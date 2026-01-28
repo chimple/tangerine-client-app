@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import {
 	IonApp,
-	IonContent
 } from '@ionic/angular/standalone';
 
 @Component({
@@ -10,6 +9,6 @@ import {
 	templateUrl: './app.html',
 	styleUrls: ['./app.scss'],
 	standalone: true,
-	imports: [IonApp, IonContent, RouterOutlet]
+	imports: [IonApp, RouterOutlet]
 })
 export class App {}
