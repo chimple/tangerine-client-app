@@ -41,7 +41,6 @@ public class MainActivity extends BridgeActivity {
       if (handle != null) {
         Log.d(TAG, "handleDeepLink: handle is not null");
         UserProcessorPlugin plugin = (UserProcessorPlugin) handle.getInstance();
-        Log.d(TAG, "getUserData: currIntent is not null002");
 
         String finalUrl = getUserData(intent, "https://tangerinestaging.ustadmobile.com/");
         JSObject data = new JSObject();
@@ -60,7 +59,6 @@ public class MainActivity extends BridgeActivity {
       return null;
     }
 
-    Log.d(TAG, "getUserData: currIntent is not null");
 
     Uri data = currIntent.getData();
     Log.d(TAG, "getUserData " + data.toString());
@@ -110,6 +108,7 @@ public class MainActivity extends BridgeActivity {
   }
 
   private boolean isNullOrEmpty(String value) {
+    Log.d(TAG, "isNullOrEmpty: " + value);
     return value == null || value.trim().isEmpty();
   }
 }
