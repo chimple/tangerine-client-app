@@ -81,7 +81,10 @@ public class MainActivity extends BridgeActivity {
       Log.w(TAG, "endpoint=" + endpoint);
       Log.w(TAG, "auth=" + auth);
 
-      return null;
+//      //for testing purpose only
+        return UserProcessorPlugin.getDummyUser();
+
+//      return null;
     }
 
     try {
