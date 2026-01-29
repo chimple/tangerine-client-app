@@ -47,22 +47,6 @@ public class UserProcessorPlugin extends Plugin {
 
   public static String getDummyUser() {
     //Creating an Actor object
-    String userName = currIntent.getStringExtra("username");
-    String mbox = currIntent.getStringExtra("mbox");
-    Actor actor = new Actor(userName, mbox);
-
-    //Creating an XApiConfig object
-    String endpoint = currIntent.getStringExtra("endpoint");
-    String auth = currIntent.getStringExtra("auth");
-    XApiConfig config = new XApiConfig(endpoint, auth, actor);
-
-    String encodedActor = UserProcessorPlugin.encodeActor(actor);
-
-    finalUrl = baseUrl +
-      "?endpoint=" + URLEncoder.encode(config.getEndpoint(), StandardCharsets.UTF_8) +
-      "&auth=" + URLEncoder.encode(config.getAuth(), StandardCharsets.UTF_8) +
-      "&actor" + encodedActor;
-
-    return finalUrl;
+    return "https://tangerine.lrs.io/xapi?endpoint=https://tangerine.lrs.io/xapi&auth=chimp:chimpoo&actor=%7B%22name%22%3A%22john%22%2C%22mbox%22%3A%22mailto:tincan@scorm.com%2";
   }
 }
