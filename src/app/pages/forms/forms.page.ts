@@ -66,6 +66,9 @@ export class FormsPage implements OnInit {
   }
 
   private renderFormWithOverlay(url: string, hashFragment: string): void {
+    // Capture the current URL (the Forms list page) to return to later
+    const returnUrl = window.location.href;
+
     this.http.get(url, { responseType: 'text' }).subscribe({
       next: (htmlContent) => {
         // 1. Determine Base URL for assets
@@ -89,7 +92,7 @@ export class FormsPage implements OnInit {
             padding-left: 15px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
           ">
-            <button onclick="window.location.reload()" style="
+            <button onclick="window.location.href='${returnUrl}'" style="
               background: none;
               border: none;
               font-size: 24px;
