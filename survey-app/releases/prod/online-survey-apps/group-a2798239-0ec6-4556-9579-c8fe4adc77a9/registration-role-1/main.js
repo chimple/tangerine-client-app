@@ -2129,6 +2129,12 @@ class TangyFormsPlayerComponent {
                     this.xapiAuth = authRaw;
                     const xapiActorData = JSON.parse(actorRaw);
                     this.xapiActor = src_app_model_xapi_actor_base_model__WEBPACK_IMPORTED_MODULE_2__["XapiActorBase"].fromRaw(xapiActorData);
+                } else if (window.__XAPI_CONFIG__ && window.__XAPI_CONFIG__.endpoint && window.__XAPI_CONFIG__.auth) {
+                    this.xapiEndpoint = window.__XAPI_CONFIG__.endpoint;
+                    this.xapiAuth = window.__XAPI_CONFIG__.auth;
+                    if (window.__XAPI_CONFIG__.actor) {
+                        this.xapiActor = src_app_model_xapi_actor_base_model__WEBPACK_IMPORTED_MODULE_2__["XapiActorBase"].fromRaw(window.__XAPI_CONFIG__.actor);
+                    }
                 }
             });
             // Loading the formResponse from a case must happen before rendering the innerHTML
