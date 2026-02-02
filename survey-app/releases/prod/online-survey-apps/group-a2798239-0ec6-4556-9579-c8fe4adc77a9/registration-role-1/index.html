@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>OnlineSurveyApp</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body class="mat-typography">
+  <script>
+    // padStart was added in ES2017. We want to check for evergreen browsers
+    if(''.padStart){
+      const elem = document.createElement("app-root");
+      document.body.appendChild(elem);
+    } else{
+      document.write('<h1 class="mat-typography">Please use a supported browser eg Chrome, Firefox, Safari or Edge</h1>');
+    }
+  </script>
+<script src="runtime.js" defer></script><script src="polyfills.js" defer></script><script src="styles.js" defer></script><script src="vendor.js" defer></script><script src="main.js" defer></script></body>
+<script type="module" src="./assets/custom-scripts.js" defer></script>
+<script type="module" src="./assets/alternative-scripts.js" defer></script>
+</html>

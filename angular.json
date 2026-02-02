@@ -31,6 +31,10 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              }, 
+              {
+                "glob": "**/*",
+                "input": "survey-app"
               }
             ],
             "styles": [
