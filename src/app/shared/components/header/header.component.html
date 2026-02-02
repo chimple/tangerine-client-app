@@ -1,11 +1,14 @@
 <ion-header translucent="true">
-  <ion-toolbar color="primary">
-	<div class="header-content">
-	  <div class="brand">
-		<ion-title class="title">Tangerine Client App</ion-title>
-	  </div>
-	  <app-logout-button *ngIf="showLogout" (logout)="onLogout()"></app-logout-button>
-	</div>
-  </ion-toolbar>
-</ion-header>
+	<ion-toolbar color="primary">
+		<div class="header-content">
+			<div class="brand">
+				<ion-title class="title">Tangerine Client App</ion-title>
+			</div>
 
+			@if (showLogout) {
+			<app-logout-button (logout)="onLogout()">
+			</app-logout-button>
+			}
+		</div>
+	</ion-toolbar>
+</ion-header>
