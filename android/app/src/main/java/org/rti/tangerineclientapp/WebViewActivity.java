@@ -18,12 +18,11 @@ import androidx.core.view.WindowInsetsCompat;
 import okhttp3.OkHttpClient;
 import org.rti.tangerineclientapp.webview.OkHttpProvider;
 import org.rti.tangerineclientapp.webview.OkHttpWebViewClient;
-//import org.rti.tangerineclientapp.webview.ProgressWebChromeClient;
+import org.rti.tangerineclientapp.webview.ProgressWebChromeClient;
 
 public class WebViewActivity extends Activity {
 
   private WebView webView;
-  private View loadingOverlay;
 
   @SuppressLint("SetJavaScriptEnabled")
   @Override
@@ -32,7 +31,6 @@ public class WebViewActivity extends Activity {
     setContentView(R.layout.activity_webview);
     View root = findViewById(R.id.root);
     RelativeLayout header = findViewById(R.id.header);
-    loadingOverlay = findViewById(R.id.loading_overlay);
     webView = findViewById(R.id.surveyWebView);
     TextView back = findViewById(R.id.back);
     ProgressBar progress = findViewById(R.id.progress);
@@ -42,6 +40,7 @@ public class WebViewActivity extends Activity {
     });
 
 
+    // here this ViewCompat and Inset use to push activity below the header including status bar plus header height
     ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
       // get the height of the statusbar through inset
       int topInset = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top;
@@ -72,19 +71,13 @@ public class WebViewActivity extends Activity {
     settings.setAllowContentAccess(true);
     settings.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
 
-    webView.setWebViewClient(new WebViewClient());
-
-
     OkHttpClient client = OkHttpProvider.create(this);
-
     webView.setWebViewClient(new OkHttpWebViewClient(client));
-//    webView.setWebChromeClient(new ProgressWebChromeClient(progress));
-    setupWebView();
+    webView.setWebChromeClient(new ProgressWebChromeClient(progress));
+
     String url = getIntent().getStringExtra("url");
-      assert url != null;
-      webView.loadUrl(url);
-
-
+    assert url != null;
+    webView.loadUrl(url);
     injectBridge();
   }
 
@@ -98,29 +91,6 @@ public class WebViewActivity extends Activity {
         finish();
       }
     }, "AndroidSurveyBridge");
-  }
-
-  private void setupWebView() {
-    WebSettings settings = webView.getSettings();
-    settings.setJavaScriptEnabled(true);
-    settings.setDomStorageEnabled(true);
-
-    webView.setWebViewClient(new WebViewClient() {
-
-      @Override
-      public void onPageStarted(WebView view, String url, Bitmap favicon) {
-        // 👇 always show loader when navigation starts
-        loadingOverlay.setVisibility(View.VISIBLE);
-      }
-
-      @Override
-      public void onPageFinished(WebView view, String url) {
-        // 👇 delay hides jank during Angular bootstrap
-        view.postDelayed(() -> {
-          loadingOverlay.setVisibility(View.GONE);
-        }, 100);
-      }
-    });
   }
 
   @Override

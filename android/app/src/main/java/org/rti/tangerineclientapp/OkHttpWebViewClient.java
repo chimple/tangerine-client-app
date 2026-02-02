@@ -1,13 +1,14 @@
 package org.rti.tangerineclientapp.webview;
 
 import android.net.Uri;
-import android.util.Log;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import java.io.InputStream;
+import org.rti.tangerineclientapp.utils.NetworkUtils;
+
+import java.util.Map;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -30,39 +31,48 @@ public class OkHttpWebViewClient extends WebViewClient {
     Uri uri = request.getUrl();
     String scheme = uri.getScheme();
 
-    if (scheme == null ||
-      (!scheme.equals("http") && !scheme.equals("https"))) {
-      Log.d(TAG, "Skipping non-http request: " + uri);
+    if (!"http".equals(scheme) && !"https".equals(scheme)) {
       return super.shouldInterceptRequest(view, request);
     }
-    Log.d(TAG, "Intercepting: " + uri);
 
     try {
-      Request okRequest = new Request.Builder()
-        .url(uri.toString())
-        .method(request.getMethod(), null)
-        .build();
+      Request.Builder builder = new Request.Builder()
+        .url(uri.toString());
 
-      Response response = client.newCall(okRequest).execute();
-      Log.d("OKHTTP_CACHE",
-        "Cache-Control: " + response.header("Cache-Control"));
-      InputStream body = response.body().byteStream();
+      // Forward headers (VERY IMPORTANT)
+      for (Map.Entry<String, String> h : request.getRequestHeaders().entrySet()) {
+        builder.header(h.getKey(), h.getValue());
+      }
+
+      // Handle offline mode
+      if (!NetworkUtils.isOnline(view.getContext())) {
+        builder.header(
+          "Cache-Control",
+          "only-if-cached, max-stale=31536000"
+        );
+      }
+
+      Response response = client.newCall(builder.build()).execute();
+
+      if (!response.isSuccessful()) {
+        return null;
+      }
 
       String contentType = response.header("Content-Type", "text/plain");
-      if (contentType.contains(";")) {
-        contentType = contentType.split(";")[0];
-      }
-      String encoding =
-        response.header("Content-Encoding", "utf-8");
+        assert contentType != null;
+        String mime = contentType.split(";")[0];
+      String encoding = "utf-8";
 
-      return new WebResourceResponse(
-        contentType,
+        assert response.body() != null;
+        return new WebResourceResponse(
+        mime,
         encoding,
-        body
+        response.body().byteStream()
       );
 
     } catch (Exception e) {
-      return super.shouldInterceptRequest(view, request);
+      return null;
     }
   }
+
 }
