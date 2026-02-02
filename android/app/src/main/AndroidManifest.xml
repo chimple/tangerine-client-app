@@ -21,16 +21,16 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE"/>
+          
+            <intent-filter android:autoVerify="true">
+              <action android:name="android.intent.action.VIEW"/>
+              <category android:name="android.intent.category.DEFAULT" />
+              <category android:name="android.intent.category.BROWSABLE"/>
 
               <data
-                android:scheme="tangerine"
-                android:host="xapi" />
+                android:scheme="https"
+                android:host="example.org"
+                android:pathPrefix="/topic/learningUnit1/" />
             </intent-filter>
 
         </activity>
