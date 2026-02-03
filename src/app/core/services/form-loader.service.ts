@@ -14,12 +14,7 @@ export class FormLoaderService {
    * @param hashFragment - The hash fragment for the form router (e.g., '#/form/formId')
    * @param returnUrl - Optional URL to return to when close is clicked. Defaults to current URL.
    */
-  async loadFormWithOverlay(
-    url: string,
-    hashFragment: string,
-    returnUrl?: string,
-    xApiConfig?: { endpoint: string; auth: string; actor?: { name: string; mbox: string } },
-  ): Promise<void> {
+  async loadFormWithOverlay(url: string, hashFragment: string, returnUrl?: string): Promise<void> {
     const backUrl = returnUrl || window.location.href;
 
     try {
@@ -80,13 +75,6 @@ export class FormLoaderService {
         const baseTag = doc.createElement('base');
         baseTag.href = baseUrl;
         doc.head.insertBefore(baseTag, doc.head.firstChild);
-      }
-
-      // Inject xAPI config if provided
-      if (xApiConfig) {
-        const script = doc.createElement('script');
-        script.textContent = `window.__XAPI_CONFIG__=${JSON.stringify(xApiConfig)};`;
-        doc.head.insertBefore(script, doc.head.firstChild);
       }
 
       // Inject Close Button at start of body

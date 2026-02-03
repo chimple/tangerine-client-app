@@ -31,16 +31,8 @@ const UserProcessor = registerPlugin<any>('UserProcessor');
 			this.ngZone.run(async () => {
 			const formUrl = this.formLoader.getFormUrl(data.groupId, data.formId);
 			const hashFragment = this.formLoader.getFormHashFragment(data.formId);
-			const xApiConfig =
-				data.endpoint && data.auth
-				? {
-					endpoint: data.endpoint,
-					auth: data.auth,
-					actor: data.name && data.mbox ? { name: data.name, mbox: data.mbox } : undefined,
-					}
-				: undefined;
-			console.log('Opening local form via deep link:', formUrl, 'xAPI:', !!xApiConfig);
-			await this.formLoader.loadFormWithOverlay(formUrl, hashFragment, undefined, xApiConfig);
+			console.log('Opening local form via deep link:', formUrl);
+			await this.formLoader.loadFormWithOverlay(formUrl, hashFragment);
 			});
 		}
 
