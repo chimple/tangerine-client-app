@@ -30,7 +30,7 @@ const UserProcessor = registerPlugin<any>('UserProcessor');
 		if (data.type === 'survey' && data.groupId && data.formId) {
 			this.ngZone.run(async () => {
 			const formUrl = this.formLoader.getFormUrl(data.groupId, data.formId);
-			const hashFragment = this.formLoader.getFormHashFragment(data.formId);
+			const hashFragment = this.formLoader.getFormHashFragment(data.formId, data);
 			console.log('Opening local form via deep link:', formUrl);
 			await this.formLoader.loadFormWithOverlay(formUrl, hashFragment);
 			});

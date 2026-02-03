@@ -110,7 +110,15 @@ export class FormLoaderService {
    * @param formId - The form ID
    * @returns The hash fragment
    */
-  getFormHashFragment(formId: string): string {
-    return `#/form/${formId}`;
+  getFormHashFragment(formId: string, data?: any): string {
+    let hash = `#/form/${formId}`;
+    if (data?.auth) {
+      const params = new URLSearchParams();
+      params.append('auth', data.auth);
+      params.append('endpoint', data.endpoint);
+      params.append('actor', JSON.stringify({ name: data.name, mbox: data.mbox }));
+      hash += `?${params.toString()}`;
+    }
+    return hash;
   }
 }
