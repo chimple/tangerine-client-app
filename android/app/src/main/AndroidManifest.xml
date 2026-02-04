@@ -29,7 +29,7 @@
 
               <data
                 android:scheme="https"
-                android:host="example.org"
+                android:host="tangerinestaging.ustadmobile.com"
                 android:pathPrefix="/topic/learningUnit1/" />
             </intent-filter>
 

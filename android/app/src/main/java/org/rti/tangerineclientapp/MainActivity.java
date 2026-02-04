@@ -48,12 +48,12 @@ public class MainActivity extends BridgeActivity {
         Uri uri = intent.getData();
 
         // ONLY handle launch data with activity_id
-        if (uri != null && uri.getQueryParameter("activity_id") != null) {
+        if (uri != null && uri.getQueryParameter(DeepLinkParam.ACTIVITY_ID.key) != null) {
           Log.d(TAG, "Processing Launch Data");
-          String activityId = uri.getQueryParameter("activity_id");
-          String endpoint = uri.getQueryParameter("endpoint");
-          String auth = uri.getQueryParameter("auth");
-          String actorJsonStr = uri.getQueryParameter("actor");
+          String activityId = uri.getQueryParameter(DeepLinkParam.ACTIVITY_ID.key);
+          String endpoint = uri.getQueryParameter(DeepLinkParam.ENDPOINT.key);
+          String auth = uri.getQueryParameter(DeepLinkParam.AUTH.key);
+          String actorJsonStr = uri.getQueryParameter(DeepLinkParam.ACTOR.key);
 
           Log.d(TAG, "activity_id: " + activityId);
           Log.d(TAG, "endpoint: " + endpoint);
@@ -68,8 +68,8 @@ public class MainActivity extends BridgeActivity {
             try {
               JSONObject jsonActor = new JSONObject(actorJsonStr);
 
-              if (jsonActor.has("name")) {
-                Object nameObj = jsonActor.get("name");
+              if (jsonActor.has(DeepLinkParam.NAME.key)) {
+                Object nameObj = jsonActor.get(DeepLinkParam.NAME.key);
                 if (nameObj instanceof JSONArray) {
                   name = ((JSONArray) nameObj).getString(0);
                 } else {
@@ -77,8 +77,8 @@ public class MainActivity extends BridgeActivity {
                 }
               }
 
-              if (jsonActor.has("mbox")) {
-                Object mboxObj = jsonActor.get("mbox");
+              if (jsonActor.has(DeepLinkParam.MBOX.key)) {
+                Object mboxObj = jsonActor.get(DeepLinkParam.MBOX.key);
                 if (mboxObj instanceof JSONArray) {
                   mbox = ((JSONArray) mboxObj).getString(0);
                 } else {
@@ -109,13 +109,13 @@ public class MainActivity extends BridgeActivity {
 
           // Send data to web layer
           data.put("type", "survey");
-          data.put("groupId", groupId);
-          data.put("formId", formId);
-          data.put("name", name);
-          data.put("mbox", mbox);
-          data.put("endpoint", endpoint);
-          data.put("auth", auth);
-          data.put("activityId", activityId);
+          data.put(DeepLinkParam.GROUP_ID.key, groupId);
+          data.put(DeepLinkParam.FORM_ID.key, formId);
+          data.put(DeepLinkParam.NAME.key, name);
+          data.put(DeepLinkParam.MBOX.key, mbox);
+          data.put(DeepLinkParam.ENDPOINT.key, endpoint);
+          data.put(DeepLinkParam.AUTH.key, auth);
+          data.put(DeepLinkParam.ACTIVITY_ID.key, activityId);
 
           plugin.sendUserDataToWeb(data);
         } else {
