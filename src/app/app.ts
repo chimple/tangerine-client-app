@@ -20,7 +20,6 @@ const UserProcessor = registerPlugin<any>('UserProcessor');
 	ngOnInit() {
 		this.registerNativeListener();
 	}
-
 	private registerNativeListener() {
 		console.log('Registering Plugin');
 		UserProcessor.addListener('processUserData', async (data: any) => {
@@ -28,12 +27,19 @@ const UserProcessor = registerPlugin<any>('UserProcessor');
 
 		// Handle survey deep link - load form using the shared FormLoaderService
 		if (data.type === 'survey' && data.groupId && data.formId) {
-			this.ngZone.run(async () => {
-			const formUrl = this.formLoader.getFormUrl(data.groupId, data.formId);
-			const hashFragment = this.formLoader.getFormHashFragment(data.formId, data);
-			console.log('Opening local form via deep link:', formUrl);
-			await this.formLoader.loadFormWithOverlay(formUrl, hashFragment);
-			});
+
+			// Add delay to ensure app is stable before loading document
+			setTimeout(() => {
+				this.ngZone.run(async () => {
+					const formUrl = this.formLoader.getFormUrl(data.groupId, data.formId);
+					const hashFragment = this.formLoader.getFormHashFragment(data.formId, data);
+					try {
+						await this.formLoader.loadFormWithOverlay(formUrl, hashFragment);
+					} catch (e) {
+						console.error('Error loading form', e);
+					}
+				});
+			}, 500); 
 		}
 
 		const result = this.processData(data);
