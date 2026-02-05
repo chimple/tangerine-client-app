@@ -12,7 +12,6 @@
 .brand {
 	display: flex;
 	align-items: center;
-	gap: 10px;
 	flex: 1;
 }
 
@@ -20,3 +19,20 @@
 	font-weight: 600;
 }
 
+.back-btn {
+  --color: var(--ion-color-primary-contrast);
+  padding-left: 15px;
+  font-size: 14px;
+}
+
+.center-native {
+  position: absolute;
+  left: 56px;
+  right: 56px;
+  text-align: center;
+  pointer-events: none;
+}
+
+ion-icon {
+  --ionicon-stroke-width: 16px;
+}
