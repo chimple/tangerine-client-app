@@ -19,4 +19,8 @@
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
         <item name="android:background">@drawable/splash</item>
     </style>
+        <style name="SurveyTheme" parent="Theme.AppCompat.Light.NoActionBar">
+            <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+            <item name="android:windowTranslucentStatus">false</item>
+        </style>
 </resources>

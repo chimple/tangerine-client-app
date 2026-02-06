@@ -4,4 +4,6 @@
     <string name="title_activity_main">Tangerine Client App</string>
     <string name="package_name">org.rti.tangerineclientapp</string>
     <string name="custom_url_scheme">org.rti.tangerineclientapp</string>
+  <string name="online_survey_app">Online Survey App</string>
+  <string name="back">Back</string>
 </resources>
