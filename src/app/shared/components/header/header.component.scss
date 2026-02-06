@@ -22,7 +22,6 @@
 .back-btn {
   --color: var(--ion-color-primary-contrast);
   padding-left: 15px;
-  font-size: 14px;
 }
 
 .center-native {
@@ -33,6 +32,6 @@
   pointer-events: none;
 }
 
-ion-icon {
+.back-btn ion-icon {
   --ionicon-stroke-width: 16px;
 }
