@@ -18,22 +18,22 @@ export class HeaderComponent implements OnInit {
 
   @Input() showLogout = true;
   @Output() logout = new EventEmitter<void>();
-  showBackButtonOnNativeDevice = false;
+  showBackButton = false;
   constructor(private location: Location, private router: Router) { }
   isNative = Capacitor.isNativePlatform();
 
   ngOnInit() {
-    this.updateBackButton(this.isNative, this.router.url);
+    this.updateBackButton(this.router.url);
     this.router.events
       .pipe(filter(e => e instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
-        this.updateBackButton(this.isNative, event.urlAfterRedirects);
+        this.updateBackButton(event.urlAfterRedirects);
       });
   }
 
-  private updateBackButton(isNative: boolean, path: string) {
-    this.showBackButtonOnNativeDevice =
-      isNative && path.startsWith('/forms');
+  private updateBackButton(path: string) {
+    console.log(path)
+    this.showBackButton = path.startsWith('/forms');
   }
 
   onLogout(): void {
