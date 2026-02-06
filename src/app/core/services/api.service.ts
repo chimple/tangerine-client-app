@@ -141,12 +141,14 @@ export class ApiService {
         .filter(f => publishedFormIds.includes(f.id) && f.type === 'form')
         .map(f => ({ formId: f.id, formTitle: f.title }));
     } catch (err) {
-      console.error('Error fetching forms:', err);
+      console.error('Error fetching forms:', JSON.stringify(err));
+      console.dir(err);
       throw err;
     }
   }
 
   private async getOpdsForms(groupUrl: string): Promise<PublishedForm[]> {
+    console.log('Fetching OPDS forms from:', groupUrl);
     return new Promise((resolve, reject) => {
       this.http.get<OpdsFeed>(groupUrl).subscribe({
         next: (feed) => {
