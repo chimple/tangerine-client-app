@@ -42,10 +42,21 @@ export class FormsPage implements OnInit {
   }
 
   async onFormSelect(form: PublishedForm): Promise<void> {
-    const formUrl = this.formLoader.getFormUrl(this.groupId, form.formId);
-    const hashFragment = this.formLoader.getFormHashFragment(form.formId);
+    let formUrl = this.formLoader.getFormUrl(this.groupId, form.formId);
+    let extraData = {};
 
-    console.log('Opening form:', formUrl);
+    if (this.api.isRespectLogin()) {
+      if (form.remoteUrl) {
+        // Use remoteUrl but strip the hash as loadFormWithOverlay fetches the content
+        const hashIndex = form.remoteUrl.indexOf('#');
+        formUrl = hashIndex > -1 ? form.remoteUrl.substring(0, hashIndex) : form.remoteUrl;
+      }
+      extraData = this.api.getDummyUser();
+    }
+
+    const hashFragment = this.formLoader.getFormHashFragment(form.formId, extraData);
+
+    console.log('Opening form:', formUrl, 'with hash:', hashFragment);
 
     try {
       await this.formLoader.loadFormWithOverlay(formUrl, hashFragment);

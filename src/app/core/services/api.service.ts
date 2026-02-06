@@ -3,20 +3,38 @@ import { HttpClient } from '@angular/common/http';
 import { ToastController } from '@ionic/angular/standalone';
 import { CONSTANTS } from 'app/shared/constants';
 import { Router } from '@angular/router';
+import { environment } from 'environments/environment';
 
 export interface LoginBody { username: string; password: string; }
 export interface LoginResponse { data: { token: string } }
 export interface GroupItem { id: string; label: string; }
-export interface PublishedForm { formId: string; formTitle: string; }
+export interface PublishedForm { formId: string; formTitle: string; remoteUrl?: string; }
 
 interface RawGroup { _id: string; label: string; }
 interface OnlineSurveyForm { formId: string; published: boolean; }
 interface OnlineSurveyResponse { data: OnlineSurveyForm[]; }
 interface Form { id: string; title: string; type?: string; }
 
+// OPDS Interfaces
+interface OpdsFeed {
+  metadata: { title: string };
+  links: any[];
+  navigation: OpdsEntry[];
+  publications: OpdsEntry[];
+}
+
+interface OpdsEntry {
+  href: string;
+  title: string;
+  type: string;
+  metadata?: { identifier?: string; title?: string };
+  links?: { rel: string; href: string; type: string }[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private tokenKey = CONSTANTS.AUTH_TOKEN;
+  private respectLoginKey = 'RESPECT_LOGIN_MODE';
   private http = inject(HttpClient);
   private toastCtrl = inject(ToastController);
   private router = inject(Router);
@@ -38,7 +56,28 @@ export class ApiService {
     });
   }
 
+  // Respect Login Management
+  setRespectLogin(enable: boolean): void {
+    if (enable) {
+      localStorage.setItem(this.respectLoginKey, 'true');
+    } else {
+      localStorage.removeItem(this.respectLoginKey);
+    }
+  }
+
+  isRespectLogin(): boolean {
+    return localStorage.getItem(this.respectLoginKey) === 'true';
+  }
+
+  getDummyUser() {
+    return environment.dummyUser;
+  }
+
   async getGroups(): Promise<GroupItem[]> {
+    if (this.isRespectLogin()) {
+      return this.getOpdsGroups();
+    }
+
     const token = this.getToken();
     if (!token) throw new Error('Unauthorized');
     const serverUrl = this.getServerUrl();
@@ -56,7 +95,26 @@ export class ApiService {
     });
   }
 
+  private async getOpdsGroups(): Promise<GroupItem[]> {
+    return new Promise((resolve, reject) => {
+      this.http.get<OpdsFeed>('https://ibiza-stage-tangerine-dev.web.app/opds.json').subscribe({
+        next: (feed) => {
+          const groups = (feed.navigation || []).map(entry => ({
+            id: entry.href, // Use full URL as ID
+            label: entry.title
+          }));
+          resolve(groups);
+        },
+        error: (err) => reject(err)
+      });
+    });
+  }
+
   async getPublishedFormsWithTitle(groupId: string): Promise<PublishedForm[]> {
+    if (this.isRespectLogin()) {
+      return this.getOpdsForms(groupId);
+    }
+
     const token = this.getToken();
     if (!token) throw new Error('Unauthorized');
     const serverUrl = this.getServerUrl();
@@ -88,10 +146,46 @@ export class ApiService {
     }
   }
 
+  private async getOpdsForms(groupUrl: string): Promise<PublishedForm[]> {
+    return new Promise((resolve, reject) => {
+      this.http.get<OpdsFeed>(groupUrl).subscribe({
+        next: (feed) => {
+          const forms = (feed.publications || []).map(entry => {
+             // Try to find the form ID from the identifier URL or fallback
+             let formId = 'unknown';
+             let remoteUrl = '';
+             
+             // Look for the open-access link which is the form launch URL
+             const launchLink = entry.links?.find(l => l.rel === 'http://opds-spec.org/acquisition/open-access') 
+                              || entry.links?.find(l => l.type === 'text/html');
+             
+             if (launchLink) {
+                remoteUrl = launchLink.href;
+                // identifier example: https://.../#/form/registration-role-1
+                 const parts = (entry.metadata?.identifier || '').split('/form/');
+                 if (parts.length > 1) {
+                   formId = parts[1];
+                 }
+             }
+
+             return {
+                formId: formId,
+                formTitle: entry.metadata?.title || entry.title,
+                remoteUrl: remoteUrl
+             };
+          });
+          resolve(forms);
+        },
+        error: (err) => reject(err)
+      });
+    });
+  }
+
   async logout(): Promise<void> {
     this.clearToken();
     this.clearGroupId();
     this.clearServerUrl();
+    this.setRespectLogin(false);
     await this.router.navigateByUrl('/server');
     await this.showToast('Logged out successfully', 'success');
   }
@@ -144,7 +238,7 @@ export class ApiService {
   }
 
   isUserLoggedIn(): boolean {
-    return !!this.getToken();
+    return !!this.getToken() || this.isRespectLogin();
   }
 
   saveGroupId(groupId: string): void {
