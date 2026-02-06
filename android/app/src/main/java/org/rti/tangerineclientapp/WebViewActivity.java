@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -32,7 +33,7 @@ public class WebViewActivity extends Activity {
     View root = findViewById(R.id.root);
     RelativeLayout header = findViewById(R.id.header);
     webView = findViewById(R.id.surveyWebView);
-    TextView back = findViewById(R.id.back);
+    ImageView back = findViewById(R.id.back);
     ProgressBar progress = findViewById(R.id.progress);
 
     back.setOnClickListener(v -> {
