@@ -1,9 +1,10 @@
-<app-header></app-header>
+<app-header [showLogout]="false"></app-header>
 
-<div class="login-container">
-	<app-login-card
-    (login)="onLogin($event)"
-    [loading]="loading">
-  </app-login-card>
-</div>
-
+<ion-content fullscreen [scrollY]="false">
+  <div class="login-container">
+    <app-login-card
+      (login)="onLogin($event)"
+      [loading]="loading">
+    </app-login-card>
+  </div>
+</ion-content>

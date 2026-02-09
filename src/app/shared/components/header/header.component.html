@@ -1,8 +1,18 @@
-<ion-header translucent="true">
+<ion-header [translucent]="true">
 	<ion-toolbar color="primary">
-		<div class="brand">
-			<ion-title class="title">Tangerine Client App</ion-title>
+		<div class="header-content">
+			<div class="brand">
+        @if(showBackButton){
+          <ion-button class="back-btn" fill="clear" (click)="onBackClick()">
+            <ion-icon name="chevron-back-outline" slot="icon-only" size="large" color="light"></ion-icon>
+          </ion-button>
+        }
+        <ion-title class="title" [class.center-native]="isNative">Tangerine Client App</ion-title>
+      </div>
+
+			@if (showLogout) {
+			<app-logout-button (logout)="onLogout()"></app-logout-button>
+			}
 		</div>
 	</ion-toolbar>
 </ion-header>
-

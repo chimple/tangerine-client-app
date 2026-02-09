@@ -1,0 +1,26 @@
+<ion-card class="server-input-card">
+  <ion-card-content class="card-content">
+    <p class="section-title">Configure Server</p>
+
+    <ion-item
+      fill="outline"
+      lines="none"
+      class="input-item">
+      <ion-input
+        [(ngModel)]="serverUrl"
+        placeholder="https://tangerine-server.example.com"
+        type="url" />
+    </ion-item>
+
+    <div class="actions">
+      <ion-button
+        color="warning"
+        expand="block"
+        class="submit-button"
+        [disabled]="!serverUrl.trim()"
+        (click)="onSubmit()">
+        Next
+      </ion-button>
+    </div>
+  </ion-card-content>
+</ion-card>

@@ -1,0 +1,34 @@
+<div class="form-list-container">
+
+  @if (loading) {
+  <div class="loading-spinner">
+    <ion-spinner name="crescent"></ion-spinner>
+    <ion-note>Loading forms...</ion-note>
+  </div>
+  }
+
+  @else if (!loading && forms.length === 0) {
+  <div class="empty-state">
+    <ion-icon name="document-text-outline" class="empty-icon"></ion-icon>
+    <ion-note>No forms available</ion-note>
+  </div>
+  }
+
+  @else {
+  <ion-list class="forms-list">
+    <ion-list-header class="published-forms-header">
+      <ion-label>Published Forms</ion-label>
+    </ion-list-header>
+
+    @for (form of forms; track form) {
+    <ion-item button (click)="onFormClick(form)" class="form-item">
+      <ion-label>
+        <p class="form-title">{{ form.formTitle }}</p>
+      </ion-label>
+      <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
+    </ion-item>
+    }
+  </ion-list>
+  }
+
+</div>

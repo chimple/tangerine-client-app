@@ -1,17 +1,37 @@
 import { Routes } from '@angular/router';
-import { AuthGuard } from './core/guards/auth.guard';
+import { authGuard } from './core/guards/auth.guard';
+import { redirectGuard } from './core/guards/redirect.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  {
+    path: '',
+    canActivate: [redirectGuard],
+    children: [] 
+  },
+  {
+    path: 'server',
+    loadComponent: () =>
+      import('./pages/server/server.page').then(m => m.ServerPage)
+  },
   {
     path: 'login',
     loadComponent: () =>
       import('./pages/login/login.page').then(m => m.LoginPage)
   },
   {
-    path: 'groups',
-    canActivate: [AuthGuard],
-    loadComponent: () =>
-      import('./pages/groups/groups.page').then(m => m.GroupsPage)
-  },
+    path: '',
+    canActivateChild: [authGuard],
+    children: [
+      {
+        path: 'groups',
+        loadComponent: () =>
+          import('./pages/groups/groups.page').then(m => m.GroupsPage)
+      },
+      {
+        path: 'forms/:groupId',
+        loadComponent: () =>
+          import('./pages/forms/forms.page').then(m => m.FormsPage)
+      }
+    ]
+  }
 ];

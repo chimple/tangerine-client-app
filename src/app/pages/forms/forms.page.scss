@@ -5,25 +5,21 @@
 }
 
 
-.groups-page {
-  padding: 20px;
+.forms-page {
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
   min-height: calc(100vh - var(--header-height));
   width: 100%;
   box-sizing: border-box;
 
-  app-group-dropdown {
+  app-form-list {
     width: 100%;
-    display: flex;
-    justify-content: center;
   }
 }
 
 @media (max-width: 576px) {
-  .groups-page {
-    padding: 16px;
+  .forms-page {
+    padding: 12px;
   }
 }

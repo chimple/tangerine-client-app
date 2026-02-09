@@ -2,14 +2,36 @@
 	display: block;
 }
 
+.header-content {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+}
+
 .brand {
 	display: flex;
 	align-items: center;
-	gap: 10px;
+	flex: 1;
 }
-
 
 .title {
 	font-weight: 600;
 }
 
+.back-btn {
+  --color: var(--ion-color-primary-contrast);
+  padding-left: 15px;
+}
+
+.center-native {
+  position: absolute;
+  left: 56px;
+  right: 56px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.back-btn ion-icon {
+  --ionicon-stroke-width: 16px;
+}
