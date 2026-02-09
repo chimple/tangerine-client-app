@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { IonApp } from '@ionic/angular/standalone';
 import { registerPlugin } from '@capacitor/core';
 import { FormLoaderService } from './core/services/form-loader.service';
+import { ApiService } from './core/services/api.service';
 
 const UserProcessor = registerPlugin<any>('UserProcessor');
 
@@ -16,6 +17,7 @@ const UserProcessor = registerPlugin<any>('UserProcessor');
 	export class App implements OnInit {
 	private ngZone = inject(NgZone);
 	private formLoader = inject(FormLoaderService);
+	private api = inject(ApiService);
 
 	ngOnInit() {
 		this.registerNativeListener();
@@ -24,6 +26,7 @@ const UserProcessor = registerPlugin<any>('UserProcessor');
 		console.log('Registering Plugin');
 		UserProcessor.addListener('processUserData', async (data: any) => {
 		console.log('Received from Java: ', data);
+		this.api.setRealUser(data);
 
 		// Handle survey deep link - load form using the shared FormLoaderService
 		if (data.type === 'survey' && data.groupId && data.formId) {

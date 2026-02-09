@@ -72,8 +72,16 @@ export class ApiService {
   }
 
 
+  private realUser: any = null;
 
-  async getDummyUser() {
+  setRealUser(user: any) {
+    this.realUser = user;
+  }
+
+  async getUserData() {
+    if (this.realUser) {
+      return this.realUser;
+    }
     try {
       const result = await UserProcessor.getDummyUser();
       return result;
