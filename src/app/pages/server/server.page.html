@@ -2,8 +2,13 @@
 
 <ion-content fullscreen="true" [scrollY]="false">
   <div class="server-container">
-    <app-server-input
-      (submit)="onServerSubmit($event)">
+    <app-server-input (submit)="onServerSubmit($event)">
     </app-server-input>
+
+    <div class="respect-button-container">
+      <ion-button fill="outline" expand="block" (click)="onRespectLogin()" [disabled]="loading">
+        Respect Login
+      </ion-button>
+    </div>
   </div>
 </ion-content>

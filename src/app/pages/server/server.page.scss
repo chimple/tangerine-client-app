@@ -9,6 +9,7 @@
   height: 100%;
   padding: 20px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   width: 100%;
@@ -18,6 +19,22 @@
     width: 100%;
     display: flex;
     justify-content: center;
+  }
+
+  .respect-button-container {
+    width: 100%;
+    max-width: 450px;
+    margin-top: 16px;
+    padding: 0 16px; // Match card padding if necessary, or ensure it doesn't touch edges on small screens
+    box-sizing: border-box;
+
+    ion-button {
+      width: 100%;
+      --border-radius: 14px;
+      font-weight: 600;
+      height: 50px;
+      font-size: 1.05rem;
+    }
   }
 }
 
