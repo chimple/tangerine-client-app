@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ToastController } from '@ionic/angular/standalone';
 import { CONSTANTS } from 'app/shared/constants';
 import { Router } from '@angular/router';
-import { environment } from 'environments/environment';
+import { registerPlugin } from '@capacitor/core';
 
 export interface LoginBody { username: string; password: string; }
 export interface LoginResponse { data: { token: string } }
@@ -30,6 +30,8 @@ interface OpdsEntry {
   metadata?: { identifier?: string; title?: string };
   links?: { rel: string; href: string; type: string }[];
 }
+
+const UserProcessor = registerPlugin<any>('UserProcessor');
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -69,8 +71,15 @@ export class ApiService {
     return localStorage.getItem(this.respectLoginKey) === 'true';
   }
 
-  getDummyUser() {
-    return environment.dummyUser;
+
+
+  async getDummyUser() {
+    try {
+      const result = await UserProcessor.getDummyUser();
+      return result;
+    } catch (err) {
+      console.error('Error getting dummy user from native:', err);
+    }
   }
 
   async getGroups(): Promise<GroupItem[]> {

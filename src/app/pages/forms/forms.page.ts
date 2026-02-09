@@ -51,7 +51,7 @@ export class FormsPage implements OnInit {
         const hashIndex = form.remoteUrl.indexOf('#');
         formUrl = hashIndex > -1 ? form.remoteUrl.substring(0, hashIndex) : form.remoteUrl;
       }
-      extraData = this.api.getDummyUser();
+      extraData = await this.api.getDummyUser();
     }
 
     const hashFragment = this.formLoader.getFormHashFragment(form.formId, extraData);

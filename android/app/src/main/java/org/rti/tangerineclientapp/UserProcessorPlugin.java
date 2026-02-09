@@ -67,4 +67,14 @@ public class UserProcessorPlugin extends Plugin {
 
     return finalUrl;
   }
+
+  @PluginMethod
+  public void getDummyUser(PluginCall call) {
+    JSObject ret = new JSObject();
+    ret.put("auth", "chimp:chimpoo");
+    ret.put("endpoint", "https://tangerine.lrs.io/xapi");
+    ret.put("name", "john");
+    ret.put("mbox", "mailto:tincan@scorm.com");
+    call.resolve(ret);
+  }
 }
