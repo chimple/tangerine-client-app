@@ -86,7 +86,13 @@ export class ApiService {
       const result = await UserProcessor.getDummyUser();
       return result;
     } catch (err) {
-      console.error('Error getting dummy user from native:', err);
+      console.warn('Error getting dummy user from native (using fallback):', err);
+      return {
+        auth: 'chimp:chimpoo',
+        endpoint: 'https://tangerine.lrs.io/xapi',
+        name: 'johnweb',
+        mbox: 'mailto:tincan@scorm.com'
+      };
     }
   }
 
@@ -116,10 +122,22 @@ export class ApiService {
     return new Promise((resolve, reject) => {
       this.http.get<OpdsFeed>('https://ibiza-stage-tangerine-dev.web.app/opds.json').subscribe({
         next: (feed) => {
-          const groups = (feed.navigation || []).map(entry => ({
-            id: entry.href, // Use full URL as ID
-            label: entry.title
-          }));
+          const groups = (feed.navigation || []).map(entry => {
+            // Extract Short ID from href (e.g., .../group-xyz.json -> group-xyz)
+            let shortId = entry.href;
+            try {
+              const urlParts = entry.href.split('/');
+              const filename = urlParts[urlParts.length - 1];
+              shortId = filename.replace('.json', '');
+            } catch (e) {
+              console.warn('Could not extract short ID from', entry.href);
+            }
+
+            return {
+              id: shortId, 
+              label: entry.title
+            };
+          });
           resolve(groups);
         },
         error: (err) => reject(err)
@@ -129,7 +147,9 @@ export class ApiService {
 
   async getPublishedFormsWithTitle(groupId: string): Promise<PublishedForm[]> {
     if (this.isRespectLogin()) {
-      return this.getOpdsForms(groupId);
+      // Reconstruct Group URL assuming standard structure
+      const groupUrl = `https://ibiza-stage-tangerine-dev.web.app/groups/${groupId}.json`;
+      return this.getOpdsForms(groupUrl);
     }
 
     const token = this.getToken();

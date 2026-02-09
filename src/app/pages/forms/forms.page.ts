@@ -46,11 +46,11 @@ export class FormsPage implements OnInit {
     let extraData = {};
 
     if (this.api.isRespectLogin()) {
-      if (form.remoteUrl) {
-        // Use remoteUrl but strip the hash as loadFormWithOverlay fetches the content
-        const hashIndex = form.remoteUrl.indexOf('#');
-        formUrl = hashIndex > -1 ? form.remoteUrl.substring(0, hashIndex) : form.remoteUrl;
-      }
+      // if (form.remoteUrl) {
+      //   // Use remoteUrl but strip the hash as loadFormWithOverlay fetches the content
+      //   const hashIndex = form.remoteUrl.indexOf('#');
+      //   formUrl = hashIndex > -1 ? form.remoteUrl.substring(0, hashIndex) : form.remoteUrl;
+      // }
       extraData = await this.api.getUserData();
     }
 
