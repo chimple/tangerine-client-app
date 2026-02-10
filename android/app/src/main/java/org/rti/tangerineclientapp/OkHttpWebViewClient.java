@@ -1,6 +1,7 @@
 package org.rti.tangerineclientapp.webview;
 
 import android.net.Uri;
+import android.util.Log;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
@@ -87,9 +88,10 @@ public class OkHttpWebViewClient extends WebViewClient {
         response.body().byteStream()
       );
 
-    } catch (Exception e) {
-      return null;
-    }
+    } catch (java.io.IOException e) {
+      Log.e(TAG, "Error intercepting request for " + request.getUrl(), e);
+      return super.shouldInterceptRequest(view, request);
+  }
   }
 
 }
