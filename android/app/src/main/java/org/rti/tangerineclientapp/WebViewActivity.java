@@ -2,17 +2,15 @@ package org.rti.tangerineclientapp;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
@@ -24,6 +22,7 @@ import org.rti.tangerineclientapp.webview.ProgressWebChromeClient;
 public class WebViewActivity extends Activity {
 
   private WebView webView;
+  private OkHttpWebViewClient webViewClient;
 
   @SuppressLint("SetJavaScriptEnabled")
   @Override
@@ -73,13 +72,16 @@ public class WebViewActivity extends Activity {
     settings.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
 
     OkHttpClient client = OkHttpProvider.create(this);
-    webView.setWebViewClient(new OkHttpWebViewClient(client));
+    this.webViewClient = new OkHttpWebViewClient(client);
+    webView.setWebViewClient(this.webViewClient);
+
     webView.setWebChromeClient(new ProgressWebChromeClient(progress));
 
-    String url = getIntent().getStringExtra("url");
-    assert url != null;
-    webView.loadUrl(url);
-    injectBridge();
+    String formUrl = getIntent().getStringExtra("formUrl");
+    if(formUrl != null) {
+      webView.loadUrl(formUrl);
+      injectBridge();
+    }
   }
 
   private void injectBridge() {
@@ -96,7 +98,25 @@ public class WebViewActivity extends Activity {
 
   @Override
   public void onBackPressed() {
-    if (webView.canGoBack()) webView.goBack();
-    else finish();
+    String returnRoute = getIntent().getStringExtra("currentUrl");
+    String currentUrl = webViewClient.getCurrentUrl();
+    Uri uri = Uri.parse(currentUrl);
+
+    String fragment = uri.getFragment();
+
+    if (fragment != null && fragment.contains("form-submitted-success")) {
+      Intent result = new Intent();
+      result.putExtra("returnRoute", returnRoute);
+      setResult(Activity.RESULT_OK, result);
+      finish();
+      return;
+    }
+
+
+    if (webView.canGoBack()) {
+      webView.goBack();
+    } else {
+      finish();
+    }
   }
 }

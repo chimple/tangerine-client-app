@@ -51,11 +51,15 @@ export class FormsPage implements OnInit {
   async onFormSelect(form: PublishedForm): Promise<void> {
     const serverUrl = this.api.getServerUrl();
     const formUrl = `${serverUrl}/releases/prod/online-survey-apps/${this.groupId}/${form.formId}/#/form/${form.formId}`;
+    const urls = {
+      formUrl,
+      currentUrl: this.router.url
+    }
     if(!Capacitor.isNativePlatform()) {
       window.open(formUrl, '_blank');
     } else {
       try {
-        await NativeWebView.open({url: formUrl});
+        await NativeWebView.open({data: JSON.stringify(urls)});
       } catch (error) {
         console.log('Error from capacitor:', error)
       }

@@ -1,7 +1,7 @@
 import { registerPlugin } from '@capacitor/core';
 
 export interface NativeWebViewPlugin {
-  open(options: { url: string }): Promise<void>;
+  open(options: { data: string }): Promise<void>;
 }
 
 export const NativeWebView = registerPlugin<NativeWebViewPlugin>('NativeWebView', {

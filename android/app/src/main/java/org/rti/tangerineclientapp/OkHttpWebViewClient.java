@@ -18,9 +18,26 @@ public class OkHttpWebViewClient extends WebViewClient {
 
   private final OkHttpClient client;
   private static final String TAG = "OKHTTP_WEBVIEW";
+  private String currentUrl;
 
   public OkHttpWebViewClient(OkHttpClient client) {
     this.client = client;
+  }
+
+  @Override
+  public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
+    currentUrl = url;
+    super.onPageStarted(view, url, favicon);
+  }
+
+  @Override
+  public void onPageFinished(WebView view, String url) {
+    currentUrl = url;
+    super.onPageFinished(view, url);
+  }
+
+  public String getCurrentUrl() {
+    return currentUrl;
   }
 
   @Override
