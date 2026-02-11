@@ -120,7 +120,10 @@ export class ApiService {
 
   private async getOpdsGroups(): Promise<GroupItem[]> {
     return new Promise((resolve, reject) => {
-      this.http.get<OpdsFeed>('https://ibiza-stage-tangerine-dev.web.app/opds.json').subscribe({
+      const serverUrl = this.getServerUrl() || 'https://ibiza-stage-tangerine-dev.web.app';
+      const opdsUrl = `${serverUrl}/opds.json`;
+      console.log('Fetching OPDS from:', opdsUrl);
+      this.http.get<OpdsFeed>(opdsUrl).subscribe({
         next: (feed) => {
           const groups = (feed.navigation || []).map(entry => {
             // Extract Short ID from href (e.g., .../group-xyz.json -> group-xyz)
@@ -148,7 +151,8 @@ export class ApiService {
   async getPublishedFormsWithTitle(groupId: string): Promise<PublishedForm[]> {
     if (this.isRespectLogin()) {
       // Reconstruct Group URL assuming standard structure
-      const groupUrl = `https://ibiza-stage-tangerine-dev.web.app/groups/${groupId}.json`;
+      const serverUrl = this.getServerUrl() || 'https://ibiza-stage-tangerine-dev.web.app';
+      const groupUrl = `${serverUrl}/groups/${groupId}.json`;
       return this.getOpdsForms(groupUrl);
     }
 

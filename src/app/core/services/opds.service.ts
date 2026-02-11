@@ -20,8 +20,6 @@ export class OpdsService {
   getFeed(url: string): Observable<OpdsFeed> {
     return this.http.get<any>(url).pipe(
       map(data => {
-          // Explicitly casting/mapping if needed, but for now assuming strict JSON match
-          // Validation could be added here
           return data as OpdsFeed;
       })
     );

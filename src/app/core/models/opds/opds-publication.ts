@@ -40,11 +40,7 @@ export class OpdsPublication implements IOpdsPublication {
     return this.resources;
   }
   
-  // Specific helper for form resources if needed, though usually just 'text/html' or 'application/javascript'
   getMainResource(): OpdsLink | undefined {
-      // In these examples, the main resource seems to be in readingOrder or resources
-      // For a form, there might be a specific link rel or type we care about.
-      // Based on test-form.json, readingOrder has the main html.
       return this.readingOrder.length > 0 ? this.readingOrder[0] : undefined;
   }
 
