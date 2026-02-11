@@ -33,18 +33,4 @@ export class ServerPage {
     }
   }
 
-  async onRespectLogin(): Promise<void> {
-    this.loading = true;
-    try {
-      this.api.setRespectLogin(true);
-      await this.api.showToast('Respect Login Mode', 'success');
-      await this.router.navigateByUrl('/groups');
-    } catch (error) {
-      console.error('Respect login failed', error);
-      await this.api.showToast('Respect login failed', 'danger');
-      this.api.setRespectLogin(false);
-    } finally {
-      this.loading = false;
-    }
-  }
 }
