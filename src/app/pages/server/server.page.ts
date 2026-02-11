@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { HeaderComponent } from 'app/shared/components/header/header.component';
 import { ServerInputComponent } from 'app/shared/components/server-input/server-input.component';
 import { ApiService } from 'app/core/services/api.service';
-import { IonContent, IonButton } from "@ionic/angular/standalone";
+import { IonContent } from "@ionic/angular/standalone";
 
 @Component({
   selector: 'app-server',
@@ -13,8 +13,7 @@ import { IonContent, IonButton } from "@ionic/angular/standalone";
   imports: [
     HeaderComponent,
     ServerInputComponent,
-    IonContent,
-    IonButton
+    IonContent
 ]
 })
 export class ServerPage {

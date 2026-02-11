@@ -4,6 +4,7 @@ import { ToastController } from '@ionic/angular/standalone';
 import { CONSTANTS } from 'app/shared/constants';
 import { Router } from '@angular/router';
 import { registerPlugin } from '@capacitor/core';
+import { firstValueFrom } from 'rxjs';
 
 export interface LoginBody { username: string; password: string; }
 export interface LoginResponse { data: { token: string } }
@@ -15,14 +16,12 @@ interface OnlineSurveyForm { formId: string; published: boolean; }
 interface OnlineSurveyResponse { data: OnlineSurveyForm[]; }
 interface Form { id: string; title: string; type?: string; }
 
-// OPDS Interfaces
-interface OpdsFeed {
-  metadata: { title: string };
-  links: any[];
-  navigation: OpdsEntry[];
-  publications: OpdsEntry[];
-}
+import { OpdsFeed } from '../models/opds/opds-feed';
+import { OpdsPublication } from '../models/opds/opds-publication';
+import { OpdsLink } from '../models/opds/opds-link';
+import { OpdsService } from './opds.service';
 
+// OPDS Interfaces
 interface OpdsEntry {
   href: string;
   title: string;
@@ -40,6 +39,7 @@ export class ApiService {
   private http = inject(HttpClient);
   private toastCtrl = inject(ToastController);
   private router = inject(Router);
+  private opds = inject(OpdsService);
 
   async login(body: LoginBody): Promise<LoginResponse> {
     const serverUrl = this.getServerUrl();
@@ -119,13 +119,13 @@ export class ApiService {
   }
 
   private async getOpdsGroups(): Promise<GroupItem[]> {
-    return new Promise((resolve, reject) => {
       const serverUrl = this.getServerUrl() || 'https://ibiza-stage-tangerine-dev.web.app';
       const opdsUrl = `${serverUrl}/opds.json`;
       console.log('Fetching OPDS from:', opdsUrl);
-      this.http.get<OpdsFeed>(opdsUrl).subscribe({
-        next: (feed) => {
-          const groups = (feed.navigation || []).map(entry => {
+      
+      try {
+        const feed = await firstValueFrom(this.opds.getFeed(opdsUrl));
+        const groups = (feed.navigation || []).map(entry => {
             // Extract Short ID from href (e.g., .../group-xyz.json -> group-xyz)
             let shortId = entry.href;
             try {
@@ -138,14 +138,14 @@ export class ApiService {
 
             return {
               id: shortId, 
-              label: entry.title
+              label: entry.title || 'Untitled Group'
             };
           });
-          resolve(groups);
-        },
-        error: (err) => reject(err)
-      });
-    });
+          return groups;
+      } catch (err) {
+        console.error('Failed to fetch OPDS groups', err);
+        throw err;
+      }
   }
 
   async getPublishedFormsWithTitle(groupId: string): Promise<PublishedForm[]> {
@@ -190,38 +190,38 @@ export class ApiService {
 
   private async getOpdsForms(groupUrl: string): Promise<PublishedForm[]> {
     console.log('Fetching OPDS forms from:', groupUrl);
-    return new Promise((resolve, reject) => {
-      this.http.get<OpdsFeed>(groupUrl).subscribe({
-        next: (feed) => {
-          const forms = (feed.publications || []).map(entry => {
-             // Try to find the form ID from the identifier URL or fallback
-             let formId = 'unknown';
-             let remoteUrl = '';
-             
-             // Look for the open-access link which is the form launch URL
-             const launchLink = entry.links?.find(l => l.rel === 'http://opds-spec.org/acquisition/open-access') 
-                              || entry.links?.find(l => l.type === 'text/html');
-             
-             if (launchLink) {
-                remoteUrl = launchLink.href;
-                // identifier example: https://.../#/form/registration-role-1
-                 const parts = (entry.metadata?.identifier || '').split('/form/');
-                 if (parts.length > 1) {
-                   formId = parts[1];
-                 }
+    try {
+      const group = await firstValueFrom(this.opds.getGroup(groupUrl));
+      
+      // Use the publications array from OpdsGroup
+      const forms = (group.publications || []).map((pub: OpdsPublication) => {
+         let formId = 'unknown';
+         let remoteUrl = '';
+         
+         const orchestratorLink = pub.getOrchestratorLink();
+         // Fallback to text/html if specific rel not found, logic similar to before
+         const launchLinkUrl = orchestratorLink || pub.links.find(l => l.type === 'text/html')?.href;
+         
+         if (launchLinkUrl) {
+            remoteUrl = launchLinkUrl;
+             // identifier example: https://.../#/form/registration-role-1
+             const parts = (pub.metadata?.identifier || '').split('/form/');
+             if (parts.length > 1) {
+               formId = parts[1];
              }
+         }
 
-             return {
-                formId: formId,
-                formTitle: entry.metadata?.title || entry.title,
-                remoteUrl: remoteUrl
-             };
-          });
-          resolve(forms);
-        },
-        error: (err) => reject(err)
+         return {
+            formId: formId,
+            formTitle: pub.metadata?.title || 'Untitled Form',
+            remoteUrl: remoteUrl
+         };
       });
-    });
+      return forms;
+    } catch (err) {
+      console.error('Failed to fetch OPDS forms', err);
+      throw err;
+    }
   }
 
   async logout(): Promise<void> {
