@@ -3,6 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { ToastController } from '@ionic/angular/standalone';
 import { CONSTANTS } from 'app/shared/constants';
 import { Router } from '@angular/router';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { FileTransfer } from '@capacitor/file-transfer';
 
 export interface LoginBody { username: string; password: string; }
 export interface LoginResponse { data: { token: string } }
@@ -187,5 +190,146 @@ export class ApiService {
       position: 'bottom'
     });
     await toast.present();
+  }
+
+  // ─── Android Storage Helpers ─────
+  // FLOW: Download → Store → Retrieve
+  // 1. getAndroidStoragePathForResource(url) – maps a remote URL to a local relative path
+  // 2. downloadAndStoreResource(path, url) – downloads the resource directly to storage via FileTransfer
+  // 3. readFormFromStorage(formPath) – reads a stored form (HTML) and returns content + baseUrl
+
+  /** Convert a full resource URL to a relative path for local storage (under releases/…). */
+  getAndroidStoragePathForResource(resourceUrl: string): string | null {
+    try {
+      const url = new URL(resourceUrl);
+
+      const releasesIndex = url.pathname.indexOf('/releases/');
+      if (releasesIndex === -1) return null;
+
+      let relativePath = url.pathname.substring(releasesIndex + 1);
+
+      // Handle URLs with a trailing slash or no file extension → append index.html
+      if (relativePath.endsWith('/')) {
+        relativePath = relativePath.slice(0, -1);
+      }
+
+      const segments = relativePath.split('/');
+      const lastSegment = segments[segments.length - 1];
+
+      if (!lastSegment.includes('.')) {
+        relativePath = relativePath + '/index.html';
+      }
+
+      return relativePath;
+
+    } catch {
+      return null;
+    }
+  }
+
+  /** Download a remote resource and save it directly to External storage using native FileTransfer. */
+  async downloadAndStoreResource(
+    androidRelativePath: string,
+    resourceUrl: string
+  ): Promise<void> {
+    try {
+      // Ensure parent directories exist (ignore if already created)
+      const parentDir = androidRelativePath.substring(0, androidRelativePath.lastIndexOf('/'));
+      if (parentDir) {
+        try {
+          await Filesystem.mkdir({
+            path: parentDir,
+            directory: Directory.External,
+            recursive: true,
+          });
+        } catch (_) {
+          // Directory already exists — safe to ignore
+        }
+      }
+
+      // Resolve the relative path to a full file URI for FileTransfer
+      const { uri } = await Filesystem.getUri({
+        path: androidRelativePath,
+        directory: Directory.External,
+      });
+
+      // Native download — handles all content types, no JS bridge data overhead
+      await FileTransfer.downloadFile({ url: resourceUrl, path: uri });
+
+      console.log('[STORED]', androidRelativePath);
+
+    } catch (err) {
+      console.error('Download/store failed:', resourceUrl, err);
+    }
+  }
+
+  /** Read a previously stored form from External storage and return its HTML content + base URL. */
+  async readFormFromStorage(formPath: string): Promise<{ content: string; baseUrl: string }> {
+    // Read the stored HTML content (throws if file doesn't exist)
+    const file = await Filesystem.readFile({
+      path: formPath,
+      directory: Directory.External,
+      encoding: Encoding.UTF8,
+    });
+
+    // Resolve the file URI so we can build a base URL for relative asset references
+    const { uri } = await Filesystem.getUri({
+      path: formPath,
+      directory: Directory.External,
+    });
+
+    const folderUri = uri.substring(0, uri.lastIndexOf('/') + 1);
+    const baseUrl = Capacitor.convertFileSrc(folderUri);
+
+    return { content: file.data as string, baseUrl };
+  }
+
+  // TEST FUNCTION – downloads a hard-coded set of form assets and verifies each was stored
+  async testDownloadRegistrationRole2(): Promise<void> {
+    const testResources = [
+      "https://tangerinestaging.ustadmobile.com/releases/prod/online-survey-apps/group-a2798239-0ec6-4556-9579-c8fe4adc77a9/registration-role-2/#/form/registration-role-2",
+      "https://tangerinestaging.ustadmobile.com/releases/prod/online-survey-apps/group-a2798239-0ec6-4556-9579-c8fe4adc77a9/registration-role-2/assets/form/form.html",
+      "https://tangerinestaging.ustadmobile.com/releases/prod/online-survey-apps/group-a2798239-0ec6-4556-9579-c8fe4adc77a9/registration-role-2/main.js",
+      "https://tangerinestaging.ustadmobile.com/releases/prod/online-survey-apps/group-a2798239-0ec6-4556-9579-c8fe4adc77a9/registration-role-2/assets/custom-scripts.js",
+      "https://tangerinestaging.ustadmobile.com/releases/prod/online-survey-apps/group-a2798239-0ec6-4556-9579-c8fe4adc77a9/registration-role-2/runtime.js",
+      "https://tangerinestaging.ustadmobile.com/releases/prod/online-survey-apps/group-a2798239-0ec6-4556-9579-c8fe4adc77a9/registration-role-2/",
+      "https://tangerinestaging.ustadmobile.com/releases/prod/online-survey-apps/group-a2798239-0ec6-4556-9579-c8fe4adc77a9/registration-role-2/assets/app-config.json",
+      "https://tangerinestaging.ustadmobile.com/releases/prod/online-survey-apps/group-a2798239-0ec6-4556-9579-c8fe4adc77a9/registration-role-2/assets/translations.json",
+      "https://tangerinestaging.ustadmobile.com/releases/prod/online-survey-apps/group-a2798239-0ec6-4556-9579-c8fe4adc77a9/registration-role-2/vendor.js",
+      "https://tangerinestaging.ustadmobile.com/releases/prod/online-survey-apps/group-a2798239-0ec6-4556-9579-c8fe4adc77a9/registration-role-2/assets//translation.en.json",
+      "https://tangerinestaging.ustadmobile.com/releases/prod/online-survey-apps/group-a2798239-0ec6-4556-9579-c8fe4adc77a9/registration-role-2/polyfills.js",
+      "https://tangerinestaging.ustadmobile.com/releases/prod/online-survey-apps/group-a2798239-0ec6-4556-9579-c8fe4adc77a9/registration-role-2/assets/alternative-scripts.js",
+      "https://tangerinestaging.ustadmobile.com/releases/prod/online-survey-apps/group-a2798239-0ec6-4556-9579-c8fe4adc77a9/registration-role-2/styles.js",
+
+    ];
+
+    console.log("===== TEST DOWNLOAD START =====");
+
+    for (const url of testResources) {
+      const androidPath = this.getAndroidStoragePathForResource(url);
+
+      console.log("URL:", url);
+      console.log("Generated Android Path:", androidPath);
+
+      if (androidPath) {
+        await this.downloadAndStoreResource(androidPath, url);
+
+        // Verify file exists after storing
+        try {
+          const stat = await Filesystem.stat({
+            path: androidPath,
+            directory: Directory.External,
+          });
+
+          console.log("✔ Verified stored:", stat.uri);
+        } catch (err) {
+          console.error("✘ File not found after write:", androidPath);
+        }
+      } else {
+        console.log("Skipped (not /releases/):", url);
+      }
+    }
+
+    console.log("===== TEST DOWNLOAD END =====");
   }
 }
