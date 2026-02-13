@@ -19,6 +19,7 @@ interface Form { id: string; title: string; type?: string; }
 import { OpdsFeed } from '../models/opds/opds-feed';
 import { OpdsPublication } from '../models/opds/opds-publication';
 import { OpdsLink } from '../models/opds/opds-link';
+import { OpdsGroup } from '../models/opds/opds-group';
 import { OpdsService } from './opds.service';
 
 // OPDS Interfaces
@@ -222,6 +223,20 @@ export class ApiService {
       console.error('Failed to fetch OPDS forms', err);
       throw err;
     }
+  }
+
+  async getOpdsGroupById(groupId: string): Promise<OpdsGroup> {
+      const serverUrl = this.getServerUrl() || 'https://ibiza-stage-tangerine-dev.web.app';
+      const groupUrl = `${serverUrl}/groups/${groupId}.json`;
+      console.log('Fetching OPDS Group from:', groupUrl);
+      
+      try {
+        const group = await firstValueFrom(this.opds.getGroup(groupUrl));
+        return group;
+      } catch (err) {
+        console.error('Failed to fetch OPDS group', err);
+        throw err;
+      }
   }
 
   async logout(): Promise<void> {
