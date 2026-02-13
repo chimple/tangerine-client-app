@@ -98,63 +98,78 @@ export class ApiService {
   }
 
   async getGroups(): Promise<GroupItem[]> {
-    if (this.isRespectLogin()) {
-      return this.getOpdsGroups();
-    }
-
-    const token = this.getToken();
-    if (!token) throw new Error('Unauthorized');
-    const serverUrl = this.getServerUrl();
-    if (!serverUrl) throw new Error('Server URL not configured');
-
-    return new Promise((resolve, reject) => {
-      this.http.get<RawGroup[]>(`${serverUrl}/nest/group/list`, {
-        headers: { Authorization: token }
-      }).subscribe({
-        next: (list) => {
-          resolve((list || []).map(g => ({ id: g._id, label: g.label })));
-        },
-        error: (err) => reject(err)
-      });
-    });
-  }
-
-  private async getOpdsGroups(): Promise<GroupItem[]> {
-      const serverUrl = this.getServerUrl() || 'https://ibiza-stage-tangerine-dev.web.app';
-      const opdsUrl = `${serverUrl}/opds.json`;
-      console.log('Fetching OPDS from:', opdsUrl);
-      
-      try {
-        const feed = await firstValueFrom(this.opds.getFeed(opdsUrl));
-        const groups = (feed.navigation || []).map(entry => {
-            // Extract Short ID from href (e.g., .../group-xyz.json -> group-xyz)
-            let shortId = entry.href;
-            try {
-              const urlParts = entry.href.split('/');
-              const filename = urlParts[urlParts.length - 1];
-              shortId = filename.replace('.json', '');
-            } catch (e) {
-              console.warn('Could not extract short ID from', entry.href);
-            }
-
-            return {
-              id: shortId, 
-              label: entry.title || 'Untitled Group'
-            };
-          });
-          return groups;
-      } catch (err) {
-        console.error('Failed to fetch OPDS groups', err);
-        throw err;
+      if (this.isRespectLogin()) {
+          try {
+             return await firstValueFrom(this.opds.getGroupsFromFeed());
+          } catch (err) {
+             console.error('Failed to fetch OPDS groups', err);
+             throw err;
+          }
       }
+
+      // Standard API implementation
+      const token = this.getToken();
+      if (!token) throw new Error('Unauthorized');
+      const serverUrl = this.getServerUrl();
+      if (!serverUrl) throw new Error('Server URL not configured');
+
+      return new Promise((resolve, reject) => {
+        this.http.get<any>(`${serverUrl}/group/user`, {
+           headers: { Authorization: token }
+        }).subscribe({
+           next: (res) => {
+              if (res && res.data) {
+                  const groups: GroupItem[] = res.data.map((g: any) => ({
+                      id: g._id,
+                      label: g.name
+                  }));
+                  resolve(groups);
+              } else {
+                  resolve([]);
+              }
+           },
+           error: (err) => {
+               console.error('Failed to fetch groups', err);
+               reject(err);
+           }
+        });
+      });
   }
 
   async getPublishedFormsWithTitle(groupId: string): Promise<PublishedForm[]> {
     if (this.isRespectLogin()) {
-      // Reconstruct Group URL assuming standard structure
-      const serverUrl = this.getServerUrl() || 'https://ibiza-stage-tangerine-dev.web.app';
-      const groupUrl = `${serverUrl}/groups/${groupId}.json`;
-      return this.getOpdsForms(groupUrl);
+      console.log('Fetching OPDS forms from group:', groupId);
+      try {
+        const group = await firstValueFrom(this.opds.getGroupById(groupId));
+        
+        // Use the publications array from OpdsGroup
+        const forms = (group.publications || []).map((pub: OpdsPublication) => {
+           let formId = 'unknown';
+           let remoteUrl = '';
+           
+           const orchestratorLink = pub.getOrchestratorLink();
+           const launchLinkUrl = orchestratorLink || pub.links.find(l => l.type === 'text/html')?.href;
+           
+           if (launchLinkUrl) {
+              remoteUrl = launchLinkUrl;
+               // identifier example: https://.../#/form/registration-role-1
+               const parts = (pub.metadata?.identifier || '').split('/form/');
+               if (parts.length > 1) {
+                 formId = parts[1];
+               }
+           }
+ 
+           return {
+              formId: formId,
+              formTitle: pub.metadata?.title || 'Untitled Form',
+              remoteUrl: remoteUrl
+           };
+        });
+        return forms;
+      } catch (err) {
+        console.error('Failed to fetch OPDS forms', err);
+        throw err;
+      }
     }
 
     const token = this.getToken();
@@ -189,85 +204,32 @@ export class ApiService {
     }
   }
 
-  private async getOpdsForms(groupUrl: string): Promise<PublishedForm[]> {
-    console.log('Fetching OPDS forms from:', groupUrl);
-    try {
-      const group = await firstValueFrom(this.opds.getGroup(groupUrl));
-      
-      // Use the publications array from OpdsGroup
-      const forms = (group.publications || []).map((pub: OpdsPublication) => {
-         let formId = 'unknown';
-         let remoteUrl = '';
-         
-         const orchestratorLink = pub.getOrchestratorLink();
-         // Fallback to text/html if specific rel not found, logic similar to before
-         const launchLinkUrl = orchestratorLink || pub.links.find(l => l.type === 'text/html')?.href;
-         
-         if (launchLinkUrl) {
-            remoteUrl = launchLinkUrl;
-             // identifier example: https://.../#/form/registration-role-1
-             const parts = (pub.metadata?.identifier || '').split('/form/');
-             if (parts.length > 1) {
-               formId = parts[1];
-             }
-         }
-
-         return {
-            formId: formId,
-            formTitle: pub.metadata?.title || 'Untitled Form',
-            remoteUrl: remoteUrl
-         };
-      });
-      return forms;
-    } catch (err) {
-      console.error('Failed to fetch OPDS forms', err);
-      throw err;
-    }
-  }
-
   async getGroupById(groupId: string): Promise<OpdsGroup | any> {
       if (this.isRespectLogin()) {
-          return this.getOpdsGroupById(groupId);
+          console.log('Fetching OPDS Group:', groupId);
+          try {
+             return await firstValueFrom(this.opds.getGroupById(groupId));
+          } catch(err) {
+             console.error('Failed to fetch OPDS group', err);
+             throw err;
+          }
       }
       // TODO: Implement standard API fetch for group details if needed
-      // For now, we only have OPDS implementation for full group details
       throw new Error('Get Group By ID is only supported in Respect Login mode currently.');
-  }
-
-  private async getOpdsGroupById(groupId: string): Promise<OpdsGroup> {
-       const serverUrl = this.getServerUrl() || 'https://ibiza-stage-tangerine-dev.web.app';
-       const groupUrl = `${serverUrl}/groups/${groupId}.json`;
-       console.log('Fetching OPDS Group from:', groupUrl);
-       
-       try {
-         const group = await firstValueFrom(this.opds.getGroup(groupUrl));
-         return group;
-       } catch (err) {
-         console.error('Failed to fetch OPDS group', err);
-         throw err;
-       }
   }
 
   async getFormById(formId: string): Promise<OpdsPublication | any> {
       if (this.isRespectLogin()) {
-          return this.getOpdsFormById(formId);
+          console.log('Fetching OPDS Form:', formId);
+          try {
+             return await firstValueFrom(this.opds.getFormById(formId));
+          } catch(err) {
+             console.error('Failed to fetch OPDS form', err);
+             throw err;
+          }
       }
        // TODO: Implement standard API fetch for form details if needed
        throw new Error('Get Form By ID is only supported in Respect Login mode currently.');
-  }
-
-  private async getOpdsFormById(formId: string): Promise<OpdsPublication> {
-       const serverUrl = this.getServerUrl() || 'https://ibiza-stage-tangerine-dev.web.app';
-       const formUrl = `${serverUrl}/forms/${formId}.json`;
-       console.log('Fetching OPDS Form from:', formUrl);
-       
-       try {
-         const publication = await firstValueFrom(this.opds.getPublication(formUrl));
-         return publication;
-       } catch (err) {
-         console.error('Failed to fetch OPDS form', err);
-         throw err;
-       }
   }
 
   async logout(): Promise<void> {
