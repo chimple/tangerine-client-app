@@ -225,18 +225,49 @@ export class ApiService {
     }
   }
 
-  async getOpdsGroupById(groupId: string): Promise<OpdsGroup> {
-      const serverUrl = this.getServerUrl() || 'https://ibiza-stage-tangerine-dev.web.app';
-      const groupUrl = `${serverUrl}/groups/${groupId}.json`;
-      console.log('Fetching OPDS Group from:', groupUrl);
-      
-      try {
-        const group = await firstValueFrom(this.opds.getGroup(groupUrl));
-        return group;
-      } catch (err) {
-        console.error('Failed to fetch OPDS group', err);
-        throw err;
+  async getGroupById(groupId: string): Promise<OpdsGroup | any> {
+      if (this.isRespectLogin()) {
+          return this.getOpdsGroupById(groupId);
       }
+      // TODO: Implement standard API fetch for group details if needed
+      // For now, we only have OPDS implementation for full group details
+      throw new Error('Get Group By ID is only supported in Respect Login mode currently.');
+  }
+
+  private async getOpdsGroupById(groupId: string): Promise<OpdsGroup> {
+       const serverUrl = this.getServerUrl() || 'https://ibiza-stage-tangerine-dev.web.app';
+       const groupUrl = `${serverUrl}/groups/${groupId}.json`;
+       console.log('Fetching OPDS Group from:', groupUrl);
+       
+       try {
+         const group = await firstValueFrom(this.opds.getGroup(groupUrl));
+         return group;
+       } catch (err) {
+         console.error('Failed to fetch OPDS group', err);
+         throw err;
+       }
+  }
+
+  async getFormById(formId: string): Promise<OpdsPublication | any> {
+      if (this.isRespectLogin()) {
+          return this.getOpdsFormById(formId);
+      }
+       // TODO: Implement standard API fetch for form details if needed
+       throw new Error('Get Form By ID is only supported in Respect Login mode currently.');
+  }
+
+  private async getOpdsFormById(formId: string): Promise<OpdsPublication> {
+       const serverUrl = this.getServerUrl() || 'https://ibiza-stage-tangerine-dev.web.app';
+       const formUrl = `${serverUrl}/forms/${formId}.json`;
+       console.log('Fetching OPDS Form from:', formUrl);
+       
+       try {
+         const publication = await firstValueFrom(this.opds.getPublication(formUrl));
+         return publication;
+       } catch (err) {
+         console.error('Failed to fetch OPDS form', err);
+         throw err;
+       }
   }
 
   async logout(): Promise<void> {
