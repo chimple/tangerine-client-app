@@ -17,7 +17,7 @@ interface OnlineSurveyResponse { data: OnlineSurveyForm[]; }
 interface Form { id: string; title: string; type?: string; }
 
 import { OpdsFeed } from '../models/opds/opds-feed';
-import { OpdsPublication } from '../models/opds/opds-publication';
+import { OpdsForm } from '../models/opds/opds-form';
 import { OpdsLink } from '../models/opds/opds-link';
 import { OpdsGroup } from '../models/opds/opds-group';
 import { OpdsService } from './opds.service';
@@ -142,8 +142,8 @@ export class ApiService {
       try {
         const group = await firstValueFrom(this.opds.getGroupById(groupId));
         
-        // Use the publications array from OpdsGroup
-        const forms = (group.publications || []).map((pub: OpdsPublication) => {
+        // Use the forms array from OpdsGroup
+        const forms = (group.forms || []).map((pub: OpdsForm) => {
            let formId = 'unknown';
            let remoteUrl = '';
            
@@ -218,7 +218,7 @@ export class ApiService {
       throw new Error('Get Group By ID is only supported in Respect Login mode currently.');
   }
 
-  async getFormById(formId: string): Promise<OpdsPublication | any> {
+  async getFormById(formId: string): Promise<OpdsForm | any> {
       if (this.isRespectLogin()) {
           console.log('Fetching OPDS Form:', formId);
           try {

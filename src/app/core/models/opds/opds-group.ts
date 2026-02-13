@@ -1,21 +1,22 @@
 import { OpdsLink, OpdsMetadata } from './opds-link';
-import { OpdsPublication } from './opds-publication';
+import { OpdsForm } from './opds-form';
 
 export interface IOpdsGroup {
   metadata: OpdsMetadata;
   links: OpdsLink[];
-  publications: OpdsPublication[];
+  forms: OpdsForm[];
 }
 
 export class OpdsGroup implements IOpdsGroup {
   metadata: OpdsMetadata;
   links: OpdsLink[];
-  publications: OpdsPublication[];
+  forms: OpdsForm[];
 
   constructor(data: any) {
     this.metadata = data.metadata;
     this.links = data.links || [];
-    this.publications = (data.publications || []).map((p: any) => new OpdsPublication(p));
+    // Map 'publications' from JSON to 'forms' in our model
+    this.forms = (data.publications || []).map((p: any) => new OpdsForm(p));
   }
 
   getSelfLink(): string | undefined {

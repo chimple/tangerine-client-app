@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { OpdsFeed } from '../models/opds/opds-feed';
 import { OpdsGroup } from '../models/opds/opds-group';
-import { OpdsPublication } from '../models/opds/opds-publication';
+import { OpdsForm } from '../models/opds/opds-form';
 import { CONSTANTS } from 'app/shared/constants';
 
 @Injectable({
@@ -44,12 +44,12 @@ export class OpdsService {
   }
 
   /**
-   * Fetches an OPDS Publication (Form).
+   * Fetches an OPDS Form (Publication).
    * @param url The full URL of the publication JSON.
    */
-  getPublication(url: string): Observable<OpdsPublication> {
+  getForm(url: string): Observable<OpdsForm> {
     return this.http.get<any>(url).pipe(
-      map(data => new OpdsPublication(data))
+      map(data => new OpdsForm(data))
     );
   }
 
@@ -74,7 +74,9 @@ export class OpdsService {
           return [];
         }
         return groups.map(entry => {
-          // ...
+          // Robustly extract ID from the href, handling both relative and absolute URLs
+          // E.g. "groups/sensata.json" -> "sensata"
+          // E.g. "https://example.com/groups/sensata.json" -> "sensata"
           const href = entry.href;
           const filename = href.split('/').pop() || ''; 
           const shortId = filename.replace('.json', '');
@@ -99,12 +101,12 @@ export class OpdsService {
     return this.getGroup(groupUrl);
   }
 
-  getFormById(formId: string): Observable<OpdsPublication> {
+  getFormById(formId: string): Observable<OpdsForm> {
     if (formId.startsWith('http')) {
         console.warn('OpdsService: getFormById received full URL, using as-is:', formId);
-        return this.getPublication(formId);
+        return this.getForm(formId);
     }
     const formUrl = `${this.getBaseUrl()}/forms/${formId}.json`;
-    return this.getPublication(formUrl);
+    return this.getForm(formUrl);
   }
 }

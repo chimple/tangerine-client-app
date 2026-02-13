@@ -1,6 +1,6 @@
 import { OpdsLink, OpdsMetadata } from './opds-link';
 
-export interface IOpdsPublication {
+export interface IOpdsForm {
   metadata: OpdsMetadata;
   links: OpdsLink[];
   images?: OpdsLink[];
@@ -8,7 +8,7 @@ export interface IOpdsPublication {
   readingOrder?: OpdsLink[];
 }
 
-export class OpdsPublication implements IOpdsPublication {
+export class OpdsForm implements IOpdsForm {
   metadata: OpdsMetadata;
   links: OpdsLink[];
   images: OpdsLink[];
