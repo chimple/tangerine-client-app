@@ -17,7 +17,6 @@ import { IonContent } from "@ionic/angular/standalone";
 ]
 })
 export class ServerPage {
-  loading = false;
   private api = inject(ApiService);
   private router = inject(Router);
 
@@ -31,5 +30,4 @@ export class ServerPage {
       this.router.navigateByUrl('/login');
     }
   }
-
 }

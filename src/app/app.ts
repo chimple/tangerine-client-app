@@ -29,7 +29,7 @@ const UserProcessor = registerPlugin<any>('UserProcessor');
 		this.api.setRealUser(data);
 
 		// Handle survey deep link - load form using the shared FormLoaderService
-		if (data.type === 'survey' && data.groupId && data.formId) {
+		if ((this.api.isRespectLogin() || data.deepLink) && data.type === 'survey' && data.groupId && data.formId) {
 
 			// Add delay to ensure app is stable before loading document
 			setTimeout(() => {

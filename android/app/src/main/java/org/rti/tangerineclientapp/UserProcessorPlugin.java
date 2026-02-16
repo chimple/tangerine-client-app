@@ -45,29 +45,6 @@ public class UserProcessorPlugin extends Plugin {
     return URLEncoder.encode(json, StandardCharsets.UTF_8);
   }
 
-  public static String getDummyUser() {
-    String baseUrl = "https://tangerinestaging.ustadmobile.com/";
-    String name = "John";
-    String mbox = "mailto:tincan@scorm.com";
-    String endpoint = "https://tangerine.lrs.io/xapi";
-    String auth = "chimp:chimpoo";
-
-    Actor actor = new Actor(name, mbox);
-    XApiConfig config = new XApiConfig(endpoint, auth, actor);
-
-    String encodedActor = UserProcessorPlugin.encodeActor(actor);
-
-    Log.d(TAG, "encodedActor=" + encodedActor);
-
-    String finalUrl =
-      baseUrl +
-        "?endpoint=" + URLEncoder.encode(config.getEndpoint(), StandardCharsets.UTF_8) +
-        "&auth=" + URLEncoder.encode(config.getAuth(), StandardCharsets.UTF_8) +
-        "&actor=" + encodedActor;
-
-    return finalUrl;
-  }
-
   @PluginMethod
   public void getDummyUser(PluginCall call) {
     JSObject ret = new JSObject();
