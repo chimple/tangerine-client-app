@@ -28,8 +28,10 @@ const UserProcessor = registerPlugin<any>('UserProcessor');
 		console.log('Received from Java: ', data);
 		this.api.setRealUser(data);
 
-		// Handle survey deep link - load form using the shared FormLoaderService
-		if ((this.api.isRespectLogin() || data.deepLink) && data.type === 'survey' && data.groupId && data.formId) {
+		// Handle survey deep link - check for deepLink flag, respect login mode, or explicit auth/launch version
+		const isDeepLink = data.deepLink || data.auth || data.respectLaunchVersion;
+		
+		if ((this.api.isRespectLogin() || isDeepLink) && data.type === 'survey' && data.groupId && data.formId) {
 
 			// Add delay to ensure app is stable before loading document
 			setTimeout(() => {
