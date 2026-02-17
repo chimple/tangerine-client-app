@@ -11,4 +11,4 @@ import {
 	standalone: true,
 	imports: [IonApp, RouterOutlet]
 })
-export class App { }
+export class App {}

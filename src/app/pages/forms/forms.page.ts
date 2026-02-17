@@ -44,7 +44,7 @@ export class FormsPage implements OnInit {
 
   onFormSelect(form: PublishedForm): void {
     const serverUrl = this.api.getServerUrl();
-    const isAppOffline = true;
+    const isAppOffline = true; //change later
     const isAndroid = Capacitor.getPlatform() === 'android';
 
     const formPath =
@@ -80,7 +80,7 @@ export class FormsPage implements OnInit {
     const returnUrl = window.location.href;
 
     if (isOfflineAndroid) {
-      // Read the previously downloaded form from External storage
+      // Read the previously downloaded form from Data storage
       const formPath = url.replace(/^\//, '');
 
       try {

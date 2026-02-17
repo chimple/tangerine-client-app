@@ -227,30 +227,31 @@ export class ApiService {
     }
   }
 
-  /** Download a remote resource and save it directly to External storage using native FileTransfer. */
+  /** Download a remote resource and save it directly to Data storage using native FileTransfer. */
   async downloadAndStoreResource(
     androidRelativePath: string,
     resourceUrl: string
   ): Promise<void> {
     try {
-      // Ensure parent directories exist (ignore if already created)
       const parentDir = androidRelativePath.substring(0, androidRelativePath.lastIndexOf('/'));
       if (parentDir) {
         try {
           await Filesystem.mkdir({
             path: parentDir,
-            directory: Directory.External,
+            directory: Directory.Data,
             recursive: true,
           });
-        } catch (_) {
-          // Directory already exists — safe to ignore
+        } catch (err: any) {
+          if (!err?.message?.includes('exists')) {
+            // ignore error if directory already exists otherwise throw error
+            throw err;
+          }
         }
       }
 
-      // Resolve the relative path to a full file URI for FileTransfer
       const { uri } = await Filesystem.getUri({
         path: androidRelativePath,
-        directory: Directory.External,
+        directory: Directory.Data,
       });
 
       // Native download — handles all content types, no JS bridge data overhead
@@ -260,22 +261,23 @@ export class ApiService {
 
     } catch (err) {
       console.error('Download/store failed:', resourceUrl, err);
+      throw err;
     }
   }
 
-  /** Read a previously stored form from External storage and return its HTML content + base URL. */
+  /** Read a previously stored form from Data storage and return its HTML content + base URL. */
   async readFormFromStorage(formPath: string): Promise<{ content: string; baseUrl: string }> {
     // Read the stored HTML content (throws if file doesn't exist)
     const file = await Filesystem.readFile({
       path: formPath,
-      directory: Directory.External,
+      directory: Directory.Data,
       encoding: Encoding.UTF8,
     });
 
     // Resolve the file URI so we can build a base URL for relative asset references
     const { uri } = await Filesystem.getUri({
       path: formPath,
-      directory: Directory.External,
+      directory: Directory.Data,
     });
 
     const folderUri = uri.substring(0, uri.lastIndexOf('/') + 1);
