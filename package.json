@@ -29,6 +29,8 @@
     "@capacitor/android": "^7.4.4",
     "@capacitor/angular": "^2.0.3",
     "@capacitor/core": "7.4.4",
+    "@capacitor/file-transfer": "^1.0.11",
+    "@capacitor/filesystem": "^7.1.6",
     "@ionic/angular": "^8.7.9",
     "@ionic/core": "^8.7.9",
     "rxjs": "~7.8.0",

@@ -5,6 +5,9 @@ import { CONSTANTS } from 'app/shared/constants';
 import { Router } from '@angular/router';
 import { registerPlugin } from '@capacitor/core';
 import { firstValueFrom } from 'rxjs';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { FileTransfer } from '@capacitor/file-transfer';
 
 export interface LoginBody { username: string; password: string; }
 export interface LoginResponse { data: { token: string } }
@@ -333,4 +336,99 @@ export class ApiService {
     });
     await toast.present();
   }
+
+  // ─── Android Storage Helpers ─────
+  // FLOW: Download → Store → Retrieve
+  // 1. getAndroidStoragePathForResource(url) – maps a remote URL to a local relative path
+  // 2. downloadAndStoreResource(path, url) – downloads the resource directly to storage via FileTransfer
+  // 3. readFormFromStorage(formPath) – reads a stored form (HTML) and returns content + baseUrl
+
+  /** Convert a full resource URL to a relative path for local storage (under releases/…). */
+  getAndroidStoragePathForResource(resourceUrl: string): string | null {
+    try {
+      const url = new URL(resourceUrl);
+
+      const releasesIndex = url.pathname.indexOf('/releases/');
+      if (releasesIndex === -1) return null;
+
+      let relativePath = url.pathname.substring(releasesIndex + 1);
+
+      // Handle URLs with a trailing slash or no file extension → append index.html
+      if (relativePath.endsWith('/')) {
+        relativePath = relativePath.slice(0, -1);
+      }
+
+      const segments = relativePath.split('/');
+      const lastSegment = segments[segments.length - 1];
+
+      if (!lastSegment.includes('.')) {
+        relativePath = relativePath + '/index.html';
+      }
+
+      return relativePath;
+
+    } catch {
+      return null;
+    }
+  }
+
+  /** Download a remote resource and save it directly to Data storage using native FileTransfer. */
+  async downloadAndStoreResource(
+    androidRelativePath: string,
+    resourceUrl: string
+  ): Promise<void> {
+    try {
+      const parentDir = androidRelativePath.substring(0, androidRelativePath.lastIndexOf('/'));
+      if (parentDir) {
+        try {
+          await Filesystem.mkdir({
+            path: parentDir,
+            directory: Directory.Data,
+            recursive: true,
+          });
+        } catch (err: any) {
+          if (!err?.message?.includes('exists')) {
+            // ignore error if directory already exists otherwise throw error
+            throw err;
+          }
+        }
+      }
+
+      const { uri } = await Filesystem.getUri({
+        path: androidRelativePath,
+        directory: Directory.Data,
+      });
+
+      // Native download — handles all content types, no JS bridge data overhead
+      await FileTransfer.downloadFile({ url: resourceUrl, path: uri });
+
+      console.log('[STORED]', androidRelativePath);
+
+    } catch (err) {
+      console.error('Download/store failed:', resourceUrl, err);
+      throw err;
+    }
+  }
+
+  /** Read a previously stored form from Data storage and return its HTML content + base URL. */
+  async readFormFromStorage(formPath: string): Promise<{ content: string; baseUrl: string }> {
+    // Read the stored HTML content (throws if file doesn't exist)
+    const file = await Filesystem.readFile({
+      path: formPath,
+      directory: Directory.Data,
+      encoding: Encoding.UTF8,
+    });
+
+    // Resolve the file URI so we can build a base URL for relative asset references
+    const { uri } = await Filesystem.getUri({
+      path: formPath,
+      directory: Directory.Data,
+    });
+
+    const folderUri = uri.substring(0, uri.lastIndexOf('/') + 1);
+    const baseUrl = Capacitor.convertFileSrc(folderUri);
+
+    return { content: file.data as string, baseUrl };
+  }
+
 }

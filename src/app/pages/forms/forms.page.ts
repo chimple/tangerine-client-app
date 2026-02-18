@@ -5,6 +5,7 @@ import { FormListComponent } from 'app/shared/components/form-list/form-list.com
 import { ApiService, PublishedForm } from 'app/core/services/api.service';
 import { FormLoaderService } from 'app/core/services/form-loader.service';
 import { IonContent } from '@ionic/angular/standalone';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-forms',
@@ -22,7 +23,7 @@ export class FormsPage implements OnInit {
   private route = inject(ActivatedRoute);
   private formLoader = inject(FormLoaderService);
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.groupId = this.route.snapshot.paramMap.get('groupId') || '';
     if (this.groupId) {
       this.loadForms();
@@ -42,27 +43,42 @@ export class FormsPage implements OnInit {
   }
 
   async onFormSelect(form: PublishedForm): Promise<void> {
-    let formUrl = this.formLoader.getFormUrl(this.groupId, form.formId);
+    const formPath = this.formLoader.getFormUrl(this.groupId, form.formId);
     let extraData = {};
 
     if (this.api.isRespectLogin()) {
-      // if (form.remoteUrl) {
-      //   // Use remoteUrl but strip the hash as loadFormWithOverlay fetches the content
-      //   const hashIndex = form.remoteUrl.indexOf('#');
-      //   formUrl = hashIndex > -1 ? form.remoteUrl.substring(0, hashIndex) : form.remoteUrl;
-      // }
       extraData = await this.api.getUserData();
     }
 
     const hashFragment = this.formLoader.getFormHashFragment(form.formId, extraData);
+    const isAndroid = Capacitor.getPlatform() === 'android';
+    const isAppOffline = true; // TODO: replace with actual offline detection
 
-    console.log('Opening form:', formUrl, 'with hash:', hashFragment);
+    if (isAndroid && isAppOffline) {
+      // Offline Android: read the form from local device storage
+      try {
+        const storagePath = formPath.replace(/^\//, '');
+        const { content, baseUrl } = await this.api.readFormFromStorage(storagePath);
 
-    try {
-      await this.formLoader.loadFormWithOverlay(formUrl, hashFragment);
-    } catch (err) {
-      console.error('Failed to load form:', err);
-      await this.api.showToast('Error loading form.', 'danger');
+        console.log('Opening offline form from storage:', storagePath, 'with hash:', hashFragment);
+        this.formLoader.renderFromContent(content, baseUrl, hashFragment);
+      } catch (err) {
+        console.error('Offline form load failed:', err);
+        await this.api.showToast('Error loading form.', 'danger');
+      }
+    } else {
+      // Online: build the full server URL and fetch from the server
+      const serverUrl = this.api.getServerUrl() || '';
+      const formUrl = `${serverUrl}${formPath}`;
+
+      console.log('Opening form:', formUrl, 'with hash:', hashFragment);
+
+      try {
+        await this.formLoader.loadFormWithOverlay(formUrl, hashFragment);
+      } catch (err) {
+        console.error('Failed to load form:', err);
+        await this.api.showToast('Error loading form.', 'danger');
+      }
     }
   }
 
