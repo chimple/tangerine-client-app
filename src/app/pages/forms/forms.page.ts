@@ -7,6 +7,7 @@ import { FormLoaderService } from 'app/core/services/form-loader.service';
 import { OpdsService } from 'app/core/services/opds.service';
 import { IonContent } from '@ionic/angular/standalone';
 import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -59,36 +60,50 @@ export class FormsPage implements OnInit {
     if (isAndroid) {
       // Android: download OPDS resources to storage, then render locally
       try {
-        // 1. Fetch the full OPDS form metadata to get resource URLs
-        const opdsForm = await firstValueFrom(this.opds.getFormById(form.formId));
-        const allResources = [
-          ...opdsForm.resources,
-          ...opdsForm.readingOrder,
-          ...opdsForm.images,
-        ];
+        const storagePath = formPath.replace(/^\//, '');
 
-        // Also include the orchestrator (main HTML) link
-        const orchestratorUrl = opdsForm.getOrchestratorLink();
-        if (orchestratorUrl) {
-          allResources.push({ rel: 'self', href: orchestratorUrl });
+        // Check if form is already downloaded — skip download if so
+        let alreadyDownloaded = false;
+        try {
+          await Filesystem.stat({ path: storagePath, directory: Directory.Data });
+          alreadyDownloaded = true;
+          console.log('[FORM] Already downloaded, skipping download:', storagePath);
+        } catch {
+          // File doesn't exist — need to download
         }
 
-        // 2. Download each resource using existing helpers
-        for (const res of allResources) {
-          const localPath = this.api.getAndroidStoragePathForResource(res.href);
-          if (!localPath) {
-            console.warn('[FORM] Skipping resource (no local path):', res.href);
-            continue;
+        if (!alreadyDownloaded) {
+          // 1. Fetch the full OPDS form metadata to get resource URLs
+          const opdsForm = await firstValueFrom(this.opds.getFormById(form.formId));
+          const allResources = [
+            ...opdsForm.resources,
+            ...opdsForm.readingOrder,
+            ...opdsForm.images,
+          ];
+
+          // Also include the orchestrator (main HTML) link
+          const orchestratorUrl = opdsForm.getOrchestratorLink();
+          if (orchestratorUrl) {
+            allResources.push({ rel: 'self', href: orchestratorUrl });
           }
-          try {
-            await this.api.downloadAndStoreResource(localPath, res.href);
-          } catch (err) {
-            console.warn('[FORM] Failed to download resource, continuing:', res.href, err);
+
+          // 2. Download each resource using existing helpers
+          console.log(`[FORM] Downloading ${allResources.length} resources...`);
+          for (const res of allResources) {
+            const localPath = this.api.getAndroidStoragePathForResource(res.href);
+            if (!localPath) {
+              console.warn('[FORM] Skipping resource (no local path):', res.href);
+              continue;
+            }
+            try {
+              await this.api.downloadAndStoreResource(localPath, res.href);
+            } catch (err) {
+              console.warn('[FORM] Failed to download resource, continuing:', res.href, err);
+            }
           }
         }
 
         // 3. Read the main HTML from storage and render
-        const storagePath = formPath.replace(/^\//, '');
         const { content, baseUrl } = await this.api.readFormFromStorage(storagePath);
 
         console.log('Rendering form from storage:', storagePath, 'with hash:', hashFragment);
