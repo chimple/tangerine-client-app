@@ -122,10 +122,8 @@ export class ApiService {
         }).subscribe({
            next: (res) => {
               console.log('Group list raw response:', JSON.stringify(res));
-              // Handle both { data: [...] } and direct array responses
               const list = Array.isArray(res) ? res : (res?.data || res?.groups || []);
               if (Array.isArray(list) && list.length > 0) {
-                  console.log('First group item keys:', Object.keys(list[0]));
                   const groups: GroupItem[] = list.map((g: any) => ({
                       id: g._id || g.id || g.groupId || '',
                       label: g.label || g.name || g.title || g.groupName || ''
