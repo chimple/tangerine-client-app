@@ -4,8 +4,10 @@ import { HeaderComponent } from 'app/shared/components/header/header.component';
 import { FormListComponent } from 'app/shared/components/form-list/form-list.component';
 import { ApiService, PublishedForm } from 'app/core/services/api.service';
 import { FormLoaderService } from 'app/core/services/form-loader.service';
+import { OpdsService } from 'app/core/services/opds.service';
 import { IonContent } from '@ionic/angular/standalone';
 import { Capacitor } from '@capacitor/core';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-forms',
@@ -22,6 +24,7 @@ export class FormsPage implements OnInit {
   private api = inject(ApiService);
   private route = inject(ActivatedRoute);
   private formLoader = inject(FormLoaderService);
+  private opds = inject(OpdsService);
 
   async ngOnInit(): Promise<void> {
     this.groupId = this.route.snapshot.paramMap.get('groupId') || '';
@@ -52,22 +55,51 @@ export class FormsPage implements OnInit {
 
     const hashFragment = this.formLoader.getFormHashFragment(form.formId, extraData);
     const isAndroid = Capacitor.getPlatform() === 'android';
-    const isAppOffline = true; // TODO: replace with actual offline detection
 
-    if (isAndroid && isAppOffline) {
-      // Offline Android: read the form from local device storage
+    if (isAndroid) {
+      // Android: download OPDS resources to storage, then render locally
       try {
+        // 1. Fetch the full OPDS form metadata to get resource URLs
+        const opdsForm = await firstValueFrom(this.opds.getFormById(form.formId));
+        const allResources = [
+          ...opdsForm.resources,
+          ...opdsForm.readingOrder,
+          ...opdsForm.images,
+        ];
+
+        // Also include the orchestrator (main HTML) link
+        const orchestratorUrl = opdsForm.getOrchestratorLink();
+        if (orchestratorUrl) {
+          allResources.push({ rel: 'self', href: orchestratorUrl });
+        }
+
+        // 2. Download each resource using existing helpers
+        for (const res of allResources) {
+          const localPath = this.api.getAndroidStoragePathForResource(res.href);
+          if (!localPath) {
+            console.warn('[FORM] Skipping resource (no local path):', res.href);
+            continue;
+          }
+          try {
+            await this.api.downloadAndStoreResource(localPath, res.href);
+          } catch (err) {
+            console.warn('[FORM] Failed to download resource, continuing:', res.href, err);
+          }
+        }
+
+        // 3. Read the main HTML from storage and render
         const storagePath = formPath.replace(/^\//, '');
         const { content, baseUrl } = await this.api.readFormFromStorage(storagePath);
 
-        console.log('Opening offline form from storage:', storagePath, 'with hash:', hashFragment);
+        console.log('Rendering form from storage:', storagePath, 'with hash:', hashFragment);
         this.formLoader.renderFromContent(content, baseUrl, hashFragment);
+
       } catch (err) {
-        console.error('Offline form load failed:', err);
+        console.error('Form download/render failed:', err);
         await this.api.showToast('Error loading form.', 'danger');
       }
     } else {
-      // Online: build the full server URL and fetch from the server
+      // Web: fetch and render from server directly
       const serverUrl = this.api.getServerUrl() || '';
       const formUrl = `${serverUrl}${formPath}`;
 
