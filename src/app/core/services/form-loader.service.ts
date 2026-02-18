@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 
+const RETURN_URL_KEY = 'tangerine_return_url';
+
 /**
  * Service for loading and rendering form HTML with a close button overlay.
  * Used by both deep link handling (app.ts) and forms list (forms.page.ts).
@@ -15,10 +17,23 @@ export class FormLoaderService {
    * @param returnUrl - Optional URL to return to when close is clicked. Defaults to current URL.
    */
   /**
-   * Builds the close button HTML. The onclick uses location.replace() to overwrite
-   * the current history entry, preventing dead ends in the history stack.
+   * Saves the current Angular app URL to sessionStorage before document.write()
+   * replaces the page. sessionStorage survives document.write() unlike in-memory state.
    */
-  private buildCloseButtonHtml(returnUrl: string): string {
+  private saveReturnUrl(): void {
+    const currentUrl = window.location.href;
+    // Only save if it's a valid Angular URL (not a capacitor file path)
+    if (!currentUrl.includes('_capacitor_file_') && !currentUrl.includes('/data/user/')) {
+      sessionStorage.setItem(RETURN_URL_KEY, currentUrl);
+    }
+  }
+
+  /**
+   * Builds the close button HTML. The onclick reads from sessionStorage at click time,
+   * ensuring it always has the correct Angular URL even after document.write().
+   * Uses location.replace() to prevent history stack corruption.
+   */
+  private buildCloseButtonHtml(): string {
     return `
       <div id="tangerine-close-overlay" style="
         position: fixed;
@@ -34,7 +49,7 @@ export class FormLoaderService {
         padding-left: 15px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       ">
-        <button onclick="window.location.replace('${returnUrl}')" style="
+        <button onclick="window.location.replace(sessionStorage.getItem('${RETURN_URL_KEY}') || window.location.origin)" style="
           background: none;
           border: none;
           font-size: 24px;
@@ -59,10 +74,9 @@ export class FormLoaderService {
    * Loads a form HTML file and renders it with a close button overlay.
    * @param url - The URL to the form's index.html
    * @param hashFragment - The hash fragment for the form router (e.g., '#/form/formId')
-   * @param returnUrl - Optional URL to return to when close is clicked. Defaults to current URL.
    */
-  async loadFormWithOverlay(url: string, hashFragment: string, returnUrl?: string): Promise<void> {
-    const backUrl = returnUrl || window.location.href;
+  async loadFormWithOverlay(url: string, hashFragment: string): Promise<void> {
+    this.saveReturnUrl();
 
     try {
       const response = await fetch(url);
@@ -89,7 +103,7 @@ export class FormLoaderService {
       }
 
       // Inject Close Button at start of body
-      doc.body.insertAdjacentHTML('afterbegin', this.buildCloseButtonHtml(backUrl));
+      doc.body.insertAdjacentHTML('afterbegin', this.buildCloseButtonHtml());
 
       // Render
       document.open();
@@ -114,10 +128,9 @@ export class FormLoaderService {
    * @param htmlContent - The raw HTML content of the form
    * @param baseUrl - The base URL for resolving relative asset paths
    * @param hashFragment - The hash fragment for the form router (e.g., '#/form/formId')
-   * @param returnUrl - Optional URL to return to when close is clicked. Defaults to current URL.
    */
-  renderFromContent(htmlContent: string, baseUrl: string, hashFragment: string, returnUrl?: string): void {
-    const backUrl = returnUrl || window.location.href;
+  renderFromContent(htmlContent: string, baseUrl: string, hashFragment: string): void {
+    this.saveReturnUrl();
 
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlContent, 'text/html');
@@ -128,7 +141,7 @@ export class FormLoaderService {
       doc.head.insertBefore(baseTag, doc.head.firstChild);
     }
 
-    doc.body.insertAdjacentHTML('afterbegin', this.buildCloseButtonHtml(backUrl));
+    doc.body.insertAdjacentHTML('afterbegin', this.buildCloseButtonHtml());
 
     document.open();
     document.write(doc.documentElement.outerHTML);

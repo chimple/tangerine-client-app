@@ -47,12 +47,9 @@ const UserProcessor = registerPlugin<any>('UserProcessor');
 
 					const formUrl = this.formLoader.getFormUrl(data.groupId, data.formId);
 					const hashFragment = this.formLoader.getFormHashFragment(data.formId, data);
-					
-					// Calculate full return URL including origin
-					const returnUrl = window.location.origin + groupUrl;
 
 					try {
-						await this.formLoader.loadFormWithOverlay(formUrl, hashFragment, returnUrl);
+						await this.formLoader.loadFormWithOverlay(formUrl, hashFragment);
 					} catch (e) {
 						console.error('Error loading form', e);
 					}
