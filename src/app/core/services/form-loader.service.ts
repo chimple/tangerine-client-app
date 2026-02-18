@@ -96,6 +96,72 @@ export class FormLoaderService {
   }
 
   /**
+   * Renders pre-fetched form HTML content with a close button overlay.
+   * Used for offline Android forms where the HTML is already loaded from device storage.
+   * @param htmlContent - The raw HTML content of the form
+   * @param baseUrl - The base URL for resolving relative asset paths
+   * @param hashFragment - The hash fragment for the form router (e.g., '#/form/formId')
+   * @param returnUrl - Optional URL to return to when close is clicked. Defaults to current URL.
+   */
+  renderFromContent(htmlContent: string, baseUrl: string, hashFragment: string, returnUrl?: string): void {
+    const backUrl = returnUrl || window.location.href;
+
+    const closeButtonHtml = `
+      <div id="tangerine-close-overlay" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 50px;
+        background: #fff;
+        border-bottom: 1px solid #ccc;
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        padding-left: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      ">
+        <button onclick="window.location.href='${backUrl}'" style="
+          background: none;
+          border: none;
+          font-size: 24px;
+          cursor: pointer;
+          color: #333;
+          font-weight: bold;
+          display: flex;
+          align-items: center;
+        ">
+          &#x2715; &nbsp; <span style="font-size: 16px; font-weight: normal;">Close</span>
+        </button>
+      </div>
+      <style>
+        body {
+          padding-top: 50px !important;
+        }
+      </style>
+    `;
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlContent, 'text/html');
+
+    if (!doc.querySelector('base')) {
+      const baseTag = doc.createElement('base');
+      baseTag.href = baseUrl;
+      doc.head.insertBefore(baseTag, doc.head.firstChild);
+    }
+
+    doc.body.insertAdjacentHTML('afterbegin', closeButtonHtml);
+
+    document.open();
+    document.write(doc.documentElement.outerHTML);
+    document.close();
+
+    if (hashFragment) {
+      window.location.hash = hashFragment;
+    }
+  }
+
+  /**
    * Constructs the local form URL path.
    * @param groupId - The group ID
    * @param formId - The form ID
