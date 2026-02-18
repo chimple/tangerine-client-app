@@ -117,17 +117,22 @@ export class ApiService {
       if (!serverUrl) throw new Error('Server URL not configured');
 
       return new Promise((resolve, reject) => {
-        this.http.get<any>(`${serverUrl}/group/user`, {
+        this.http.get<any>(`${serverUrl}/nest/group/list`, {
            headers: { Authorization: token }
         }).subscribe({
            next: (res) => {
-              if (res && res.data) {
-                  const groups: GroupItem[] = res.data.map((g: any) => ({
-                      id: g._id,
-                      label: g.name
+              console.log('Group list raw response:', JSON.stringify(res));
+              // Handle both { data: [...] } and direct array responses
+              const list = Array.isArray(res) ? res : (res?.data || res?.groups || []);
+              if (Array.isArray(list) && list.length > 0) {
+                  console.log('First group item keys:', Object.keys(list[0]));
+                  const groups: GroupItem[] = list.map((g: any) => ({
+                      id: g._id || g.id || g.groupId || '',
+                      label: g.label || g.name || g.title || g.groupName || ''
                   }));
                   resolve(groups);
               } else {
+                  console.warn('No groups found in response');
                   resolve([]);
               }
            },
