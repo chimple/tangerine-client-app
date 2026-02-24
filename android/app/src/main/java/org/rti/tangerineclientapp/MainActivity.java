@@ -85,7 +85,7 @@ public class MainActivity extends BridgeActivity {
                   mbox = mboxObj.toString();
                 }
               }
-            } catch (Exception e) {
+            } catch (org.json.JSONException e) {
               Log.e(TAG, "Failed to parse actor JSON", e);
             }
           }

@@ -29,7 +29,7 @@
 
               <data
                 android:scheme="https"
-                android:host="tangerinestaging.ustadmobile.com"
+                android:host="${deepLinkHost}"
                 android:pathPrefix="/topic/learningUnit1/" />
             </intent-filter>
 

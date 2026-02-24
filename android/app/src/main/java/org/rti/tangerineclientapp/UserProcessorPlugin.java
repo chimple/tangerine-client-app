@@ -36,13 +36,15 @@ public class UserProcessorPlugin extends Plugin {
   }
 
   public static String encodeActor(Actor actor) {
-    String json = String.format(
-      "{\"name\":\"%s\",\"mbox\":\"%s\"}",
-      actor.getName(),
-      actor.getMbox()
-    );
-
-    return URLEncoder.encode(json, StandardCharsets.UTF_8);
+    org.json.JSONObject jsonObject = new org.json.JSONObject();
+    try {
+      jsonObject.put("name", actor.getName());
+      jsonObject.put("mbox", actor.getMbox());
+    } catch (org.json.JSONException e) {
+      Log.e(TAG, "Failed to create JSON for actor", e);
+      return "";
+    }
+    return URLEncoder.encode(jsonObject.toString(), StandardCharsets.UTF_8);
   }
 
   @PluginMethod

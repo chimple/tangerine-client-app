@@ -159,9 +159,9 @@ export class ApiService {
            if (launchLinkUrl) {
               remoteUrl = launchLinkUrl;
                // identifier example: https://.../#/form/registration-role-1
-               const parts = (pub.metadata?.identifier || '').split('/form/');
-               if (parts.length > 1) {
-                 formId = parts[1];
+               const match = (pub.metadata?.identifier || '').match(/\/form\/([^/]+)/);
+               if (match && match[1]) {
+                 formId = match[1];
                }
            }
  
@@ -390,8 +390,10 @@ export class ApiService {
             recursive: true,
           });
         } catch (err: any) {
-          if (!err?.message?.includes('exists')) {
-            // ignore error if directory already exists otherwise throw error
+          // Ignore "directory already exists" errors; re-throw everything else.
+          // Check error code first (most reliable), fall back to message string.
+          const isExistsError = err?.code === 'EEXIST' || err?.message?.includes('exists');
+          if (!isExistsError) {
             throw err;
           }
         }
