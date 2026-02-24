@@ -128,7 +128,7 @@ export class FormsPage implements OnInit {
     const closeButtonHtml = `
       <div id="tangerine-close-overlay" style="
         position: fixed;
-        top: 0;
+        top: env(safe-area-inset-top, 0px);
         left: 0;
         width: 100%;
         height: 50px;
@@ -155,7 +155,7 @@ export class FormsPage implements OnInit {
       </div>
       <style>
         body {
-          padding-top: 50px !important;
+          padding-top: calc(50px + env(safe-area-inset-top, 0px)) !important;
         }
       </style>
     `;
