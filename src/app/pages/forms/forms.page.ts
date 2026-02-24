@@ -4,7 +4,11 @@ import { HeaderComponent } from 'app/shared/components/header/header.component';
 import { FormListComponent } from 'app/shared/components/form-list/form-list.component';
 import { ApiService, PublishedForm } from 'app/core/services/api.service';
 import { FormLoaderService } from 'app/core/services/form-loader.service';
+import { OpdsService } from 'app/core/services/opds.service';
 import { IonContent } from '@ionic/angular/standalone';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-forms',
@@ -21,8 +25,9 @@ export class FormsPage implements OnInit {
   private api = inject(ApiService);
   private route = inject(ActivatedRoute);
   private formLoader = inject(FormLoaderService);
+  private opds = inject(OpdsService);
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.groupId = this.route.snapshot.paramMap.get('groupId') || '';
     if (this.groupId) {
       this.loadForms();
@@ -45,11 +50,6 @@ export class FormsPage implements OnInit {
     let extraData = {};
 
     if (this.api.isRespectLogin()) {
-      // if (form.remoteUrl) {
-      //   // Use remoteUrl but strip the hash as loadFormWithOverlay fetches the content
-      //   const hashIndex = form.remoteUrl.indexOf('#');
-      //   formUrl = hashIndex > -1 ? form.remoteUrl.substring(0, hashIndex) : form.remoteUrl;
-      // }
       extraData = await this.api.getUserData();
     }
 

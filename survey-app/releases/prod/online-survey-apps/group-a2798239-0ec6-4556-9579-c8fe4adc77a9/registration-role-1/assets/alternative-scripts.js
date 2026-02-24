@@ -1,1 +1,0 @@
-{"statusCode":404,"error":"Not Found","message":"Cannot GET /releases/prod/online-survey-apps/group-a2798239-0ec6-4556-9579-c8fe4adc77a9/registration-role-1/assets/alternative-scripts.js"}
