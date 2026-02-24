@@ -1,4 +1,9 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { firstValueFrom } from 'rxjs';
+import { ApiService } from './api.service';
+import { OpdsService } from './opds.service';
 
 /**
  * Service for loading and rendering form HTML with a close button overlay.
@@ -8,6 +13,91 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class FormLoaderService {
+  private api = inject(ApiService);
+  private opds = inject(OpdsService);
+
+  /**
+   * High-level method that handles the full form loading flow for any platform.
+   * - Android: downloads OPDS resources to storage (if needed), then renders locally.
+   * - Web: fetches from the server URL and renders with overlay.
+   *
+   * @param groupId - The group ID
+   * @param formId - The form ID
+   * @param extraData - Optional extra data for hash fragment (auth, endpoint, etc.)
+   */
+  async loadFormForPlatform(groupId: string, formId: string, extraData: Record<string, any> = {}): Promise<void> {
+    const formPath = this.getFormUrl(groupId, formId);
+    const hashFragment = this.getFormHashFragment(formId, extraData);
+    const isAndroid = Capacitor.getPlatform() === 'android';
+
+    if (isAndroid) {
+      try {
+        const storagePath = formPath.replace(/^\//, '');
+
+        // Check if form is already downloaded — skip download if so
+        let alreadyDownloaded = false;
+        try {
+          await Filesystem.stat({ path: storagePath, directory: Directory.Data });
+          alreadyDownloaded = true;
+          console.log('[FORM] Already downloaded, skipping download:', storagePath);
+        } catch {
+          // File doesn't exist — need to download
+        }
+
+        if (!alreadyDownloaded) {
+          // 1. Fetch the full OPDS form metadata to get resource URLs
+          const opdsForm = await firstValueFrom(this.opds.getFormById(formId));
+          const allResources = [
+            ...opdsForm.resources,
+            ...opdsForm.readingOrder,
+            ...opdsForm.images,
+          ];
+
+          // Also include the orchestrator (main HTML) link
+          const orchestratorUrl = opdsForm.getOrchestratorLink();
+          if (orchestratorUrl) {
+            allResources.push({ rel: 'self', href: orchestratorUrl });
+          }
+
+          // 2. Download each resource using existing helpers
+          console.log(`[FORM] Downloading ${allResources.length} resources...`);
+          for (const res of allResources) {
+            const localPath = this.api.getAndroidStoragePathForResource(res.href);
+            if (!localPath) {
+              console.warn('[FORM] Skipping resource (no local path):', res.href);
+              continue;
+            }
+            try {
+              await this.api.downloadAndStoreResource(localPath, res.href);
+            } catch (err) {
+              console.warn('[FORM] Failed to download resource, continuing:', res.href, err);
+            }
+          }
+        }
+
+        // 3. Read the main HTML from storage and render
+        const { content, baseUrl } = await this.api.readFormFromStorage(storagePath);
+        console.log('[FORM] Rendering from storage:', storagePath, 'with hash:', hashFragment);
+        this.renderFromContent(content, baseUrl, hashFragment);
+
+      } catch (err) {
+        console.error('[FORM] Download/render failed:', err);
+        await this.api.showToast('Error loading form.', 'danger');
+      }
+    } else {
+      // Web: fetch and render from server directly
+      const serverUrl = this.api.getServerUrl() || '';
+      const formUrl = `${serverUrl}${formPath}`;
+      console.log('[FORM] Opening form (web):', formUrl, 'with hash:', hashFragment);
+
+      try {
+        await this.loadFormWithOverlay(formUrl, hashFragment);
+      } catch (err) {
+        console.error('[FORM] Failed to load form:', err);
+        await this.api.showToast('Error loading form.', 'danger');
+      }
+    }
+  }
   /**
    * Loads a form HTML file and renders it with a close button overlay.
    * @param url - The URL to the form's index.html

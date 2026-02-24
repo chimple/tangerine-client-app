@@ -42,7 +42,6 @@ export class FormsPage implements OnInit {
   }
 
   async onFormSelect(form: PublishedForm): Promise<void> {
-    let formUrl = this.formLoader.getFormUrl(this.groupId, form.formId);
     let extraData = {};
 
     if (this.api.isRespectLogin()) {
@@ -54,16 +53,7 @@ export class FormsPage implements OnInit {
       extraData = await this.api.getUserData();
     }
 
-    const hashFragment = this.formLoader.getFormHashFragment(form.formId, extraData);
-
-    console.log('Opening form:', formUrl, 'with hash:', hashFragment);
-
-    try {
-      await this.formLoader.loadFormWithOverlay(formUrl, hashFragment);
-    } catch (err) {
-      console.error('Failed to load form:', err);
-      await this.api.showToast('Error loading form.', 'danger');
-    }
+    await this.formLoader.loadFormForPlatform(this.groupId, form.formId, extraData);
   }
 
   async onLogout(): Promise<void> {
