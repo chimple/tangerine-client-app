@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "title": "Daily Routine"
+  },
+  "links": [
+    {
+      "rel": "self",
+      "href": "https://tangerinestaging.ustadmobile.com/groups/group-144ca04c-40f6-4102-b916-91a77d8df952.json",
+      "type": "application/opds+json"
+    }
+  ],
+  "publications": [
+    {
+      "metadata": {
+        "@type": "https://schema.org/LearningResource",
+        "title": "Breakfast",
+        "author": "Tangerine",
+        "identifier": "https://tangerinestaging.ustadmobile.com/releases/prod/online-survey-apps/group-144ca04c-40f6-4102-b916-91a77d8df952/form-2e3bafae-1616-4a8d-b4aa-706d2f66f2c4/#/form/form-2e3bafae-1616-4a8d-b4aa-706d2f66f2c4",
+        "modified": "2026-02-23T09:12:08.005155+00:00",
+        "language": "en",
+        "subject": {
+          "name": "Education: Evaluation & Assessment",
+          "scheme": "https://www.bisg.org/#bisac",
+          "code": "EDU011000"
+        },
+        "description": "Tangerine Form: Breakfast"
+      },
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://tangerinestaging.ustadmobile.com/forms/form-2e3bafae-1616-4a8d-b4aa-706d2f66f2c4.json",
+          "type": "application/webpub+json"
+        },
+        {
+          "rel": "http://opds-spec.org/acquisition/open-access",
+          "href": "https://tangerinestaging.ustadmobile.com/releases/prod/online-survey-apps/group-144ca04c-40f6-4102-b916-91a77d8df952/form-2e3bafae-1616-4a8d-b4aa-706d2f66f2c4/#/form/form-2e3bafae-1616-4a8d-b4aa-706d2f66f2c4",
+          "type": "text/html"
+        }
+      ],
+      "images": [
+        {
+          "href": "https://tangerinestaging.ustadmobile.com/forms_icon.png",
+          "type": "image/png",
+          "height": 128,
+          "width": 128
+        }
+      ]
+    }
+  ]
+}
