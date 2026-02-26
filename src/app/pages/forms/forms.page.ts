@@ -1,22 +1,17 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { HeaderComponent } from 'app/shared/components/header/header.component';
 import { FormListComponent } from 'app/shared/components/form-list/form-list.component';
 import { ApiService, PublishedForm } from 'app/core/services/api.service';
-import { CONSTANTS } from 'app/shared/constants';
-import { IonContent } from "@ionic/angular/standalone";
+import { FormLoaderService } from 'app/core/services/form-loader.service';
+import { IonContent } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-forms',
   templateUrl: './forms.page.html',
   styleUrls: ['./forms.page.scss'],
   standalone: true,
-  imports: [
-    HeaderComponent,
-    FormListComponent,
-    IonContent
-]
+  imports: [HeaderComponent, FormListComponent, IonContent],
 })
 export class FormsPage implements OnInit {
   forms: PublishedForm[] = [];
@@ -25,9 +20,9 @@ export class FormsPage implements OnInit {
 
   private api = inject(ApiService);
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
+  private formLoader = inject(FormLoaderService);
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.groupId = this.route.snapshot.paramMap.get('groupId') || '';
     if (this.groupId) {
       this.loadForms();
@@ -46,10 +41,14 @@ export class FormsPage implements OnInit {
     }
   }
 
-  onFormSelect(form: PublishedForm): void {
-    const serverUrl = this.api.getServerUrl();
-    const formUrl = `${serverUrl}/releases/prod/online-survey-apps/${this.groupId}/${form.formId}/#/form/${form.formId}`;
-    window.open(formUrl, '_blank');
+  async onFormSelect(form: PublishedForm): Promise<void> {
+    let extraData = {};
+
+    if (this.api.isRespectLogin()) {
+      extraData = await this.api.getUserData();
+    }
+
+    await this.formLoader.loadFormForPlatform(this.groupId, form.formId, extraData);
   }
 
   async onLogout(): Promise<void> {

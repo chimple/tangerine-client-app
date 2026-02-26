@@ -2,9 +2,13 @@
 
 <ion-content fullscreen [scrollY]="false">
   <div class="login-container">
-    <app-login-card
-      (login)="onLogin($event)"
-      [loading]="loading">
+    <app-login-card (login)="onLogin($event)" [loading]="loading">
     </app-login-card>
+
+    <div class="ion-text-center ion-padding-top">
+      <ion-button fill="clear" (click)="onRespectLogin()" [disabled]="loading">
+        Respect Login
+      </ion-button>
+    </div>
   </div>
 </ion-content>

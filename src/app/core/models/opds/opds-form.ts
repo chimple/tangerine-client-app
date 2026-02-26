@@ -1,0 +1,51 @@
+import { OpdsLink, OpdsMetadata } from './opds-link';
+
+export interface IOpdsForm {
+  metadata: OpdsMetadata;
+  links: OpdsLink[];
+  images?: OpdsLink[];
+  resources?: OpdsLink[];
+  readingOrder?: OpdsLink[];
+}
+
+export class OpdsForm implements IOpdsForm {
+  metadata: OpdsMetadata;
+  links: OpdsLink[];
+  images: OpdsLink[];
+  resources: OpdsLink[];
+  readingOrder: OpdsLink[];
+
+  constructor(data: any) {
+    this.metadata = data.metadata;
+    this.links = data.links || [];
+    this.images = data.images || [];
+    this.resources = data.resources || [];
+    this.readingOrder = data.readingOrder || [];
+  }
+
+  getSelfLink(): string | undefined {
+    return this.links.find(l => l.rel === 'self')?.href;
+  }
+
+  getImages(): OpdsLink[] {
+    return this.images;
+  }
+
+  // Helper to get resources by type
+  getResourcesByType(type: string): OpdsLink[] {
+    return this.resources.filter(r => r.type === type);
+  }
+
+  getAllResources(): OpdsLink[] {
+    return this.resources;
+  }
+  
+  getMainResource(): OpdsLink | undefined {
+      return this.readingOrder.length > 0 ? this.readingOrder[0] : undefined;
+  }
+
+  getOrchestratorLink(): string | undefined {
+      const link = this.links.find(l => l.rel === 'http://opds-spec.org/acquisition/open-access');
+      return link ? link.href : undefined;
+  }
+}

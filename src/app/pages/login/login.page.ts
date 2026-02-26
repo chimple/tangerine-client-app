@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { HeaderComponent } from 'app/shared/components/header/header.component';
 import { LoginCardComponent } from 'app/shared/components/login-card/login-card.component';
 import { ApiService } from 'app/core/services/api.service';
-import { IonContent } from "@ionic/angular/standalone";
+import { IonContent, IonButton } from "@ionic/angular/standalone";
 
 @Component({
   selector: 'app-login',
@@ -13,7 +13,8 @@ import { IonContent } from "@ionic/angular/standalone";
   imports: [
     HeaderComponent,
     LoginCardComponent,
-    IonContent
+    IonContent,
+    IonButton
 ]
 })
 export class LoginPage {
@@ -44,6 +45,22 @@ export class LoginPage {
         await this.api.showToast('Invalid username or password', 'danger');
     } finally {
         this.loading = false;
+    }
+  }
+
+  async onRespectLogin(): Promise<void> {
+    this.loading = true;
+    try {
+      this.api.setRespectLogin(true);
+      // Dummy user is handled in ApiService/FormsPage
+      await this.api.showToast('Respect Login Mode', 'success');
+      await this.router.navigateByUrl('/groups');
+    } catch (error) {
+      console.error('Respect login failed', error);
+      await this.api.showToast('Respect login failed', 'danger');
+      this.api.setRespectLogin(false);
+    } finally {
+      this.loading = false;
     }
   }
 }

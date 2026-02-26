@@ -48,7 +48,7 @@ export class GroupsPage implements OnInit {
 
     try {
       this.api.saveGroupId(this.selectedGroupId);
-      await this.router.navigateByUrl(`/forms/${this.selectedGroupId}`);
+      await this.router.navigate(['/forms', this.selectedGroupId]);
     } catch (err: any) {
       console.error('Failed to navigate:', err);
       await this.api.showToast('Failed to navigate', 'danger');
